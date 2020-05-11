@@ -1,0 +1,15 @@
+<mat-form-field appearance="outline">
+    <mat-label>{{ title }}</mat-label>
+    <input matInput (keypress)="tagsInputKeyPressed($event)" [(ngModel)]="input">
+</mat-form-field>
+
+<div class="tags-holder">
+    <div class="tag"
+    *ngFor="let tag of tags; let i = index">
+        <p>#{{ tag }}
+            <button (click)="removeTag(i)">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </p>
+    </div>
+</div>

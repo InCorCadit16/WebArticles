@@ -1,0 +1,21 @@
+<mat-card class="container-fluid">
+    <mat-card-title>
+        <a routerLink="/article/{{ articlePreview.id }}" routerLinkActive="active">{{ articlePreview.title }}</a>
+    </mat-card-title>
+    <mat-card-subtitle>{{ articlePreview.topicName }}</mat-card-subtitle>
+
+    <mat-card-content>
+    <p class="overview">{{ articlePreview.overview }}</p>
+
+    <app-tags-list [tags]="articlePreview.tags.split('#')"></app-tags-list>
+
+    <a routerLink="/profile/{{articlePreview.userId}}" routerLinkActive="active">{{ articlePreview.userName }}</a>
+
+    <app-rating [rating]="articlePreview.rating" class="pull-right"></app-rating>
+
+    </mat-card-content>
+    <mat-card-footer>
+        <hr>
+        <span class="date">{{ articlePreview.publichDate| date:'dd.MM.yyyy, h:mm a' }}</span>
+    </mat-card-footer>
+</mat-card>

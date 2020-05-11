@@ -1,0 +1,36 @@
+.parent {
+    min-height: 100%;
+}
+
+.container-fluid {
+    background: linear-gradient(#FFD7A1, #BB86FF);
+    padding: 70px 32px;
+    height: 100%;
+}
+
+.row, .mat-paginator, .mat-table {
+    background: transparent!important;
+}
+
+.mat-header-row {
+    display: none!important;
+}
+
+.mat-cell {
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.spinner-container {
+    width: 100px;
+    margin: 30px auto;
+}
+
+th {
+    padding-right: 8px;
+    padding-bottom: 4px;
+}
+
+app-article-preview {
+    width: 100%;
+}

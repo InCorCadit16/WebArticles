@@ -1,0 +1,40 @@
+a,
+mat-card-subtitle {
+    color: #000;
+    text-decoration: none;
+    transition: all 0.4s;
+}
+
+a:hover {
+    color: #2f912f;
+}
+
+mat-card-title {
+    font-size: 3rem;
+}
+
+mat-card-subtitle {
+    font-size: 2rem;
+}
+
+.container-fluid {
+    background: transparent;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 8px 16px;
+    margin: 8px 0;
+}
+
+hr {
+    margin-bottom: 8px;
+    border-color: #333;
+}
+
+.date {
+    float: right;
+    margin-right: 16px;
+}
+
+.overview {
+    word-break: break-all;
+}

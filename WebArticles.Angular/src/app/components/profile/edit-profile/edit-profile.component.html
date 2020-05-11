@@ -1,0 +1,76 @@
+<div class="parent">
+    <app-header></app-header>
+    <div class="container">
+        <form [formGroup]="userUpdateModel" (ngSubmit)="onSubmit()" #form>
+
+            <mat-form-field>
+                <mat-label>Profile picture link</mat-label>
+                <input matInput type="url" [formControl]="profilePickLink">
+                <mat-error *ngIf="profilePickLink.hasError('isURL')">Provide a valid url</mat-error>
+                <mat-error *ngIf="profilePickLink.hasError('maxlength')">Must have no more then 200 characters</mat-error>
+            </mat-form-field>
+
+            <mat-form-field>
+                <mat-label>First Name</mat-label>
+                <input matInput type="text" [formControl]="firstName">
+                <mat-error *ngIf="firstName.hasError('minlength')">Must have at least 2 characters</mat-error>
+                <mat-error *ngIf="firstName.hasError('maxlength')">Must have no more then 30 characters</mat-error>
+            </mat-form-field>
+
+            <mat-form-field>
+                <mat-label>Last Name</mat-label>
+                <input matInput type="text" [formControl]="lastName">
+                <mat-error *ngIf="lastName.hasError('minlength')">Must have at least 2 characters</mat-error>
+                <mat-error *ngIf="lastName.hasError('maxlength')">Must have no more then 30 characters</mat-error>
+            </mat-form-field>
+
+            <mat-form-field>
+                <mat-label>Email</mat-label>
+                <input matInput type="email" [formControl]="email">
+                <mat-hint>Required</mat-hint>
+                <mat-error *ngIf="email.hasError('email')">Provide a valide email</mat-error>
+                <mat-error *ngIf="email.hasError('required')">Email is required</mat-error>
+                <mat-error *ngIf="email.hasError('maxlength')">Must have no more then 30 characters</mat-error>
+            </mat-form-field>
+
+            <mat-form-field>
+                <mat-label>Birth Date</mat-label>
+                <input matInput [matDatepicker]="bDate" [formControl]="birthDate">
+                <mat-datepicker-toggle matSuffix [for]="bDate"></mat-datepicker-toggle>
+                <mat-datepicker #bDate></mat-datepicker>
+                <mat-error *ngIf="!birthDate.hasError('dateInPast')">Birth date must be a date from past</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Writer Description</mat-label>
+                <textarea matInput rows="12" [formControl]="writerDescription"></textarea>
+                <mat-error *ngIf="writerDescription.hasError('maxlength')">Must have no more then 2000 characters</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" floatLabel='always'>
+                <mat-label>Favourite topics to write:</mat-label>
+                <input matInput class="collapse">
+                <mat-selection-list #writerList (selectionChange)="onWriterTopicSelected(writerList)">
+                    <mat-list-option *ngFor="let topic of writerTopics.value" [selected]="topic.selected" [value]="topic.name">{{topic.name}}</mat-list-option>
+                </mat-selection-list>
+            </mat-form-field>
+
+
+            <mat-form-field appearance="outline">
+                <mat-label>Reviewer Description</mat-label>
+                <textarea matInput rows="12" [formControl]="reviewerDescription"></textarea>
+                <mat-error *ngIf="reviewerDescription.hasError('maxlength')">Must have no more then 2000 characters</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" floatLabel='always'>
+                <mat-label>Favourite topics to review:</mat-label>
+                <input matInput class="collapse">
+                <mat-selection-list #reviewerList (selectionChange)="onReviewerTopicSelected(reviewerList)">
+                    <mat-list-option *ngFor="let topic of reviewerTopics.value" [selected]="topic.selected" [value]="topic.name">{{topic.name}}</mat-list-option>
+                </mat-selection-list>
+            </mat-form-field>
+
+            <button mat-raised-button [disabled]="!userUpdateModel.valid" color="primary" type="submit">Save</button>
+        </form>
+    </div>
+</div>

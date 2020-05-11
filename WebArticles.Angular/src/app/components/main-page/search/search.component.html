@@ -1,0 +1,6 @@
+<div class="form-group">
+    <mat-form-field>
+        <mat-label>Search</mat-label>
+        <input matInput placeholder="Just type" [(ngModel)]="searchQuery" (input)="searchModified($event.target.value)">
+    </mat-form-field>
+</div>

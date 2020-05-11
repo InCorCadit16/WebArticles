@@ -1,0 +1,36 @@
+div {
+    display: flex;
+    align-items: center;
+}
+
+.rating {
+    font-size: 20px;
+}
+
+.actions {
+    display: inline-flex;
+    flex-direction: column;
+    margin-left: -10px;
+    margin-top: -20px;
+}
+
+mat-icon {
+    font-size: 48px;
+    cursor: pointer
+}
+
+.up {
+    color: #619761;
+}
+
+.down {
+    color: rgb(240, 136, 136);
+}
+
+.red {
+    color: rgb(240, 85, 85);
+}
+
+.green {
+    color: #2f912f;
+}

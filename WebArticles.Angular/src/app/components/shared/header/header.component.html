@@ -1,0 +1,28 @@
+<mat-toolbar color="primary">
+  <span><a routerLink="/main">Articles</a></span>
+  <mat-accordion [displayMode]="flat">
+  <mat-expansion-panel
+    [hideToggle]="true"
+    [expanded]="expanded">
+    <mat-expansion-panel-header
+    [collapsedHeight]="'0px'"
+    [expandedHeight]="'0px'">
+      <mat-panel-title>
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+    <div class="expansion-content">
+      <a mat-button [routerLink]="'/profile/' + loginService.getUserId()">Profile</a>
+
+      <a mat-button routerLink='/article/create'>New Article</a>
+
+      <a mat-button (click)="onLogOut()">Log out</a>
+    </div>
+  </mat-expansion-panel>
+</mat-accordion>
+  <mat-list>
+    <mat-list-item class="main"><a mat-button routerLink="/main">Main</a></mat-list-item>
+    <mat-list-item *ngIf="!loginService.isLoggedIn()"><a mat-button routerLink="/login">Log in</a></mat-list-item>
+    <mat-list-item *ngIf="!loginService.isLoggedIn()"><a mat-button routerLink="/register">Sign in</a></mat-list-item>
+</mat-list>
+    <img *ngIf="loginService.isLoggedIn()" (click)="this.expanded = !this.expanded" [src]="pictureLink" alt="">
+</mat-toolbar>

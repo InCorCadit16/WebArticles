@@ -1,0 +1,11 @@
+<div mat-dialog-content>
+    <mat-form-field appearance="outline">
+        <mat-label></mat-label>
+        <textarea matInput name="comment" [(ngModel)]="commentText" #comment="ngModel"  type="text" rows="8" placeholder="This article is..."></textarea>
+    </mat-form-field>
+    <div *ngIf="comment.touched">
+        <mat-error *ngIf="commentText.length === 0">Comment cannot be empty</mat-error>
+    </div>
+</div>
+
+<button mat-raised-button color="accent" [disabled]="commentText.length === 0" (click)="postComment()">Post</button>

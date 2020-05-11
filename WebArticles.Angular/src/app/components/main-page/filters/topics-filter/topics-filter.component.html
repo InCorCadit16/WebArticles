@@ -1,0 +1,11 @@
+<div>
+    <h4>Topics</h4>
+    <mat-selection-list #matTopics>
+        <mat-list-option
+        *ngFor="let topic of topics | async; let i = index"
+        ngDefaultControl
+        value="{{ topic.topicName }}">
+        {{ topic.topicName }}
+        </mat-list-option>
+    </mat-selection-list>
+</div>

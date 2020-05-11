@@ -1,0 +1,40 @@
+.fluid-container {
+    background: linear-gradient(#FFD7A1, #BB86FF);
+    padding: 70px 32px;
+    min-height: 100%;
+}
+
+.row {
+    margin-bottom: 32px;
+}
+
+.profile-pick {
+    width: 100%;
+    border: 1px solid black;
+}
+
+.user-rating, .user-topics{
+    font-size: 20px;
+}
+
+.user-rating {
+    margin-top: 12px;
+
+}
+
+.row, .mat-paginator, .mat-table {
+    background: transparent!important;
+}
+
+.mat-header-row {
+    display: none!important;
+}
+
+.mat-cell {
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+app-article-preview {
+    width: 100%;
+}

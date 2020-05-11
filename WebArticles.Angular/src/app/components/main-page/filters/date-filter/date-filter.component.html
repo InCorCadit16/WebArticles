@@ -1,0 +1,16 @@
+<div>
+    <h4>Publication Date</h4>
+    <mat-form-field>
+        <mat-label>From</mat-label>
+        <input matInput [matDatepicker]="pickerStart" [(ngModel)]="startDate">
+        <mat-datepicker-toggle matSuffix [for]="pickerStart"></mat-datepicker-toggle>
+        <mat-datepicker #pickerStart></mat-datepicker>
+    </mat-form-field>
+    -
+    <mat-form-field>
+        <mat-label>Till</mat-label>
+        <input matInput [matDatepicker]="pickerEnd" [(ngModel)]="endDate">
+        <mat-datepicker-toggle matSuffix [for]="pickerEnd"></mat-datepicker-toggle>
+        <mat-datepicker #pickerEnd></mat-datepicker>
+    </mat-form-field>
+</div>

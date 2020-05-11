@@ -1,0 +1,21 @@
+.tags-holder {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin: 8px 65px 8px 0;
+}
+
+.tag {
+    background: rgb(49, 24, 82);
+    margin: 6px 6px 6px 0;
+    border-radius: 4px;
+}
+
+.tag > p {
+    margin-bottom: 0;
+    padding: 4px 8px;
+    letter-spacing: 1px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #fff;
+}

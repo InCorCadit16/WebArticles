@@ -1,0 +1,26 @@
+<app-header></app-header>
+<div class="container-fluid">
+    <form [formGroup]="userLoginModel" (ngSubmit)="onSubmit()" #form>
+
+        <mat-form-field>
+            <mat-label>Username</mat-label>
+            <input matInput type="text" [formControl]="username">
+            <mat-error *ngIf="username.hasError('required')">Username is required</mat-error>
+            <mat-error *ngIf="username.hasError('minlength')">Must have at least 4 characters</mat-error>
+            <mat-error *ngIf="username.hasError('maxlength')">Must have no more then 30 characters</mat-error>
+        </mat-form-field>
+
+        <mat-form-field>
+            <mat-label>Password</mat-label>
+            <input matInput [type]="hide ? 'text': 'password'" [formControl]="password">
+            <button mat-icon-button matSuffix type="button" (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide" class="no-margin">
+            <mat-icon>{{hide ? 'visibility':'visibility_off'}}</mat-icon>
+            </button>
+            <mat-error *ngIf="password.hasError('minlength')">Must have at least 8 characters</mat-error>
+            <mat-error *ngIf="password.hasError('required')">Password is required</mat-error>
+            <mat-error *ngIf="password.hasError('maxlength')">Must have no more then 30 characters</mat-error>
+        </mat-form-field>
+
+        <button mat-raised-button [disabled]="!userLoginModel.valid" color="primary" type="submit">Log in</button>
+    </form>
+</div>

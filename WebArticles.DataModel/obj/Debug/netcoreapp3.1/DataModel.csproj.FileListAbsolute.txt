@@ -1,0 +1,11 @@
+C:\Users\incorcadit\source\repos\WebArticles\DataModel\bin\Debug\netcoreapp3.1\DataModel.deps.json
+C:\Users\incorcadit\source\repos\WebArticles\DataModel\bin\Debug\netcoreapp3.1\DataModel.dll
+C:\Users\incorcadit\source\repos\WebArticles\DataModel\obj\Debug\netcoreapp3.1\DataModel.csprojAssemblyReference.cache
+C:\Users\incorcadit\source\repos\WebArticles\DataModel\obj\Debug\netcoreapp3.1\DataModel.AssemblyInfoInputs.cache
+C:\Users\incorcadit\source\repos\WebArticles\DataModel\obj\Debug\netcoreapp3.1\DataModel.AssemblyInfo.cs
+C:\Users\incorcadit\source\repos\WebArticles\DataModel\bin\Debug\netcoreapp3.1\DataModel.runtimeconfig.json
+C:\Users\incorcadit\source\repos\WebArticles\DataModel\bin\Debug\netcoreapp3.1\DataModel.runtimeconfig.dev.json
+C:\Users\incorcadit\source\repos\WebArticles\DataModel\obj\Debug\netcoreapp3.1\DataModel.genruntimeconfig.cache
+C:\Users\incorcadit\source\repos\WebArticles\DataModel\bin\Debug\netcoreapp3.1\DataModel.pdb
+C:\Users\incorcadit\source\repos\WebArticles\DataModel\obj\Debug\netcoreapp3.1\DataModel.dll
+C:\Users\incorcadit\source\repos\WebArticles\DataModel\obj\Debug\netcoreapp3.1\DataModel.pdb

@@ -1,0 +1,11 @@
+<div>
+    <span class="rating"> <ng-content></ng-content>{{rating}}
+        <span *ngIf="rating < 0" class="glyphicon glyphicon-star red" aria-hidden="true"></span>
+        <span *ngIf="rating > 0" class="glyphicon glyphicon-star green" aria-hidden="true"></span>
+        <span *ngIf="rating == 0" class="glyphicon glyphicon-star" aria-hidden="true"></span>
+    </span>
+    <span class="actions" *ngIf="changable">
+            <mat-icon [ngClass]="{up: state < 1, green: state === 1 }" (click)="onUpClicked()">arrow_drop_up</mat-icon>
+            <mat-icon [ngClass]="{down: state > -1, red: state === -1 }" (click)="onDownClicked()">arrow_drop_down</mat-icon>
+    </span>
+</div>

@@ -1,0 +1,19 @@
+<mat-card>
+    <app-rating
+    [rating]="comment.rating"
+    [changable]="comment.userId !== loginService.getUserId()"
+    [sourceType]="'comment'"
+    [sourceId]="comment.id"></app-rating>
+    <mat-card-subtitle><a routerLink="/profile/{{ comment.userId }}">{{ comment.userName }}</a></mat-card-subtitle>
+    <mat-card-subtitle *ngIf="showArticle">Article: <a routerLink="/article/{{ comment.articleId }}">{{ comment.articleTitle }}</a></mat-card-subtitle>
+    <mat-card-content>
+        {{ comment.content }}
+    </mat-card-content>
+    <mat-card-actions *ngIf="comment.userId === loginService.getUserId()">
+        <button mat-raised-button color="primary" mat-flat-button *ngIf="true" (click)="onEdit()">Edit</button>
+        <button mat-raised-button color="warn" *ngIf="true" (click)="onDelete()">Delete</button>
+    </mat-card-actions>
+    <mat-card-footer>
+        {{ comment.publichDate| date:'dd.MM.yyyy, h:mm a'  }}
+    </mat-card-footer>
+</mat-card>

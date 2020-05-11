@@ -1,0 +1,8 @@
+.topic {
+    display: block;
+    margin: 5px;
+}
+
+.topic>input {
+    margin-right: 5px;
+}

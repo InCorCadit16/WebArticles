@@ -1,0 +1,23 @@
+﻿using DataModel.Data.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace WebArticles.WebAPI.Data.Dto
+{
+    public class ArticleCreate
+    {
+        public string Title { get; set; }
+
+        public long TopicId { get; set; }
+
+        public string Overview { get; set; }
+
+        public string Content { get; set; }
+
+        public string[] Tags { get; set; }
+
+        public long UserId { get; set; }
+    }
+}

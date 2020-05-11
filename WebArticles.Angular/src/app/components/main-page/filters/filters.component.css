@@ -1,0 +1,27 @@
+.filters-holder {
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 8px 16px;
+}
+
+h3 {
+    margin-top: 5px;
+}
+
+.d-flex {
+    display: flex;
+}
+
+.justify-content-between {
+    justify-content: space-between;
+}
+
+.btn-apply {
+    width: 82px;
+    height: 34px;
+}
+
+hr {
+    margin: 15px 0;
+    border-top: 1px solid #333;
+}

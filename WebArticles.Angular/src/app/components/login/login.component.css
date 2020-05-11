@@ -1,0 +1,30 @@
+.container-fluid {
+    background: linear-gradient(#FFD7A1, #BB86FF);
+    min-height: 100%;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+    width: 380px;
+    margin-top: 40px;
+    align-items: flex-start;
+    text-align: start;
+}
+
+button {
+    margin: 20px auto;
+}
+
+.mat-form-field {
+    margin: 0 auto 15px auto;
+}
+
+.no-margin {
+    margin: 0 0 0 -20px;
+}
+
+.mat-input-element[type="password"] {
+    width: 90%;
+}

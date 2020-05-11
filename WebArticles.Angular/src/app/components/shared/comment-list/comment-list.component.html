@@ -1,0 +1,23 @@
+<div #aboveComments>
+<table *ngIf="showSorting" matSort (matSortChange)="onSortChanged($event)">
+    <tr>
+      <th mat-sort-header="rating">Rating</th>
+      <th mat-sort-header="publichDate">Publich Date</th>
+    </tr>
+</table>
+
+<table mat-table [dataSource]="dataSource">
+    <ng-container class="container-fluid" matColumnDef="comment">
+        <mat-header-cell *matHeaderCellDef></mat-header-cell>
+        <mat-cell *matCellDef="let comment">
+          <app-comment [comment]="comment" [showArticle]="showArticle" (deleted)="onCommentListUpdated()">
+          </app-comment>
+        </mat-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="['comment']"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: ['comment'];"></mat-row>
+  </table>
+
+  <mat-paginator></mat-paginator>
+</div>

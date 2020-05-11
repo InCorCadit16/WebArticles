@@ -1,0 +1,11 @@
+.form-group {
+    display: flex;
+    justify-content: space-between;
+    align-content: center;
+}
+
+mat-form-field {
+    width: 100%;
+    font-size: 16px;
+    margin-top: -10px;
+}

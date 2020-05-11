@@ -1,0 +1,35 @@
+.parent {
+    min-height: 100%;
+    background: linear-gradient(#FFD7A1, #BB86FF);
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    padding: 70px 32px;
+    align-items: center;
+}
+
+
+mat-form-field {
+    margin-top: 24px;
+}
+
+.mat-form-field:nth-child(6),
+.mat-form-field:nth-child(8) {
+    width: 500px;
+}
+
+mat-selection-list {
+    width: 240px;
+}
+
+.mat-form-field:nth-child(7),
+.mat-form-field:nth-child(9) {
+    width: 260px;
+}
+
+button {
+    margin: 24px auto;
+    width: 100px;
+}

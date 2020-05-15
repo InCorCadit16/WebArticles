@@ -12,7 +12,10 @@ namespace DataModel.Data.Entities
         [NotMapped]
         public int WriterRating { 
             get {
-                return Articles.Sum(a => a.Rating);
+                if (Articles == null)
+                    return 0;
+                else
+                    return Articles.Sum(a => a.Rating);
             } 
         }
 
@@ -21,7 +24,7 @@ namespace DataModel.Data.Entities
 
         public virtual ICollection<WriterTopic> TopicsLink { get; set; }
 
-        public long UserId { get; set; }
+        public long? UserId { get; set; }
 
         public User User { get; set; }
 

@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using WebAPI.Data.Repositories;
 using WebArticles.WebAPI.Data.Services;
 using WebArticles.WebAPI.Data.Profiles;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace WebAPI
 {
@@ -40,7 +42,8 @@ namespace WebAPI
                                     typeof(UserRegisterProfile),
                                     typeof(UserProfile),
                                     typeof(CommentProfile),
-                                    typeof(CommentCreateProfile));
+                                    typeof(CommentCreateProfile),
+                                    typeof(UserRowProfile));
 
             services.AddIdentity<User, Role>(options =>
             {
@@ -50,10 +53,15 @@ namespace WebAPI
                 options.Password.RequireDigit = false;
                 options.Password.RequireLowercase = false;
                 options.Password.RequiredUniqueChars = 0;
-            }).AddEntityFrameworkStores<ArticleDbContext>();
+            })
+            .AddRoles<Role>()
+            .AddRoleManager<RoleManager<Role>>()
+            .AddEntityFrameworkStores<ArticleDbContext>();
 
             var authOptions = services.ConfigureAuthOptions(Configuration);
             services.AddJwtAuthentication(authOptions);
+            services.AddAuthorization();
+
             services.AddControllers().AddNewtonsoftJson(options =>
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
             );

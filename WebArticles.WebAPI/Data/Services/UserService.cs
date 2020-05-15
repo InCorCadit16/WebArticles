@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WebAPI.Data.Repositories;
+using WebAPI.Infrastructure;
 using WebArticles.WebAPI.Data.Dto;
 using WebArticles.WebAPI.Data.Models;
 
@@ -117,5 +118,58 @@ namespace WebArticles.WebAPI.Data.Services
                 return new UpdateAnswer { Succeeded = false, Error = "An internal server error occured" };
             }
         }
+
+        public async Task<UpdateAnswer> DeleteUser(long id)
+        {
+            try
+            {
+                var user = await _repository.GetAll<User>()
+                                        .Include(u => u.Writer).Include(u => u.Reviewer)
+                                        .FirstOrDefaultAsync(u => u.Id == id);
+
+                var result = await _userManager.DeleteAsync(user);
+
+                if (result.Succeeded)
+                {
+                    _repository.Delete(await _repository.GetAll<Reviewer>().FirstOrDefaultAsync(r => r.Id == user.Reviewer.Id));
+                    _repository.Delete(await _repository.GetAll<Writer>().FirstOrDefaultAsync(r => r.Id == user.Writer.Id));
+                    return new UpdateAnswer { Succeeded = true };
+                }
+                else
+                    return new UpdateAnswer
+                    {
+                        Succeeded = false,
+                        Error = result.Errors.Select(e => e.Description).Aggregate((d, s) => s += d + "\n")
+                    };
+            }
+            catch (Exception e)
+            {
+                return new UpdateAnswer { Succeeded = false, Error = "Failed to delete this profile" };
+            }
+        }
+
+        public async Task<PaginatorAnswer<UserRow>> GetPage(PaginatorQuery queryDto)
+        {
+            IQueryable<User> query = _repository.GetAll<User>();
+
+            query = query.Include(u => u.Writer)
+                             .ThenInclude(w => w.Articles)
+                        .Include(u => u.Reviewer)
+                            .ThenInclude(w => w.Comments);
+
+            // search string
+            /*if (!string.IsNullOrEmpty(queryDto.Search) && !string.IsNullOrWhiteSpace(queryDto.Search))
+            {
+                query = query.Where(a => a.Title.Contains(queryDto.Search));
+            }*/
+
+            query = query.OrderBy(u => u.Id);
+
+            return new PaginatorAnswer<UserRow> {
+                Total = await query.CountAsync(), 
+                Items = await query.GetPage(queryDto.Page, queryDto.PageSize).MapWithAsync<UserRow, User>(_mapper) 
+            };
+        }
+
     }
 }

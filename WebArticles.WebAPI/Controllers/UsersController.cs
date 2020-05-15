@@ -1,12 +1,6 @@
-﻿using AutoMapper;
-using DataModel.Data.Entities;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using WebArticles.WebAPI.Data.Dto;
 using WebArticles.WebAPI.Data.Models;
@@ -16,15 +10,14 @@ namespace WebArticles.WebAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class UsersController : ControllerBase
     {
         private readonly UserService _userService;
-        private readonly UserManager<User> _userManager;
 
-        public UsersController(UserService userService, UserManager<User> userManager)
+        public UsersController(UserService userService)
         {
             this._userService = userService;
-            this._userManager = userManager;
         }
 
         [AllowAnonymous]
@@ -67,6 +60,22 @@ namespace WebArticles.WebAPI.Controllers
                 return Ok( new { profilePick = result });
             else
                 return NotFound();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<UpdateAnswer>> DeleteArticle([FromRoute] long id)
+        {
+            var result = await _userService.DeleteUser(id);
+            if (result.Succeeded)
+                return Ok(result);
+            else
+                return BadRequest(result);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<PaginatorAnswer<UserRow>>> GetUserRowsPage([FromQuery] PaginatorQuery query) {
+            return Ok(await _userService.GetPage(query));
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ namespace WebArticles.WebAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class CommentsController : ControllerBase
     {
         private readonly CommentService _commentService;
@@ -22,6 +24,7 @@ namespace WebArticles.WebAPI.Controllers
         }
 
         [HttpGet("{articleId}")]
+        [AllowAnonymous]
         public async Task<ActionResult<PaginatorAnswer<CommentModel>>> GetPage([FromRoute] long articleId, [FromQuery] PaginatorQuery query)
         {
             try
@@ -34,6 +37,7 @@ namespace WebArticles.WebAPI.Controllers
         }
 
         [HttpGet("user/{userId}")]
+        [AllowAnonymous]
         public async Task<ActionResult<PaginatorAnswer<CommentModel>>> GetPageByUserId([FromRoute] long userId, [FromQuery] PaginatorQuery query)
         {
             try
@@ -55,13 +59,21 @@ namespace WebArticles.WebAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult<UpdateAnswer>> UpdateComment([FromRoute] long id)
         {
-            return await _commentService.DeleteComment(id);
+            var result = await _commentService.DeleteComment(id);
+            if (result.Succeeded)
+                return Ok(result);
+            else
+                return BadRequest(result);
         }
 
         [HttpPost]
         public async Task<ActionResult<CreateAnswer>> CreateComment([FromBody] CommentCreate commentCreate)
         {
-            return await _commentService.CreateComment(commentCreate);
+            var result = await _commentService.CreateComment(commentCreate);
+            if (result.Succeeded)
+                return Ok(result);
+            else
+                return BadRequest(result);
         }
 
         [HttpPut("rating")]

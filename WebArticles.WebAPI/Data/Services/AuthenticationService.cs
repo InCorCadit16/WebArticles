@@ -49,9 +49,13 @@ namespace WebArticles.WebAPI.Data.Services
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new Claim(ClaimTypes.Name, user.UserName),
-                    new Claim(ClaimTypes.Role, roles.Aggregate((r, i) => i += r + ","))
+                    new Claim(ClaimTypes.Name, user.UserName)
                 };
+
+                foreach (var role in roles)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, role));
+                }
 
                 var signingCredentials = new SigningCredentials(_authenticationOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256);
                 var jwtToken = new JwtSecurityToken(

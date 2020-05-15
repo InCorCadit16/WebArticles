@@ -16,6 +16,24 @@
   <ItemGroup>
     <Compile Remove="Migrations\20200423234822_AddAuthSchema.cs" />
     <Compile Remove="Migrations\20200423234822_AddAuthSchema.Designer.cs" />
+    <Compile Remove="Migrations\20200512150245_removedDeleteRestriction.cs" />
+    <Compile Remove="Migrations\20200512150245_removedDeleteRestriction.Designer.cs" />
+    <Compile Remove="Migrations\20200512152908_changedDeleteRestrictions.cs" />
+    <Compile Remove="Migrations\20200512152908_changedDeleteRestrictions.Designer.cs" />
+    <Compile Remove="Migrations\20200512153113_changedDeleteRestrictions.cs" />
+    <Compile Remove="Migrations\20200512153113_changedDeleteRestrictions.Designer.cs" />
+    <Compile Remove="Migrations\20200512154258_changedDeleteRestrictions.cs" />
+    <Compile Remove="Migrations\20200512154258_changedDeleteRestrictions.Designer.cs" />
+    <Compile Remove="Migrations\20200512155108_newRestrictionChanges2.cs" />
+    <Compile Remove="Migrations\20200512155108_newRestrictionChanges2.Designer.cs" />
+    <Compile Remove="Migrations\20200512155225_newRestrictionChanges2.cs" />
+    <Compile Remove="Migrations\20200512155225_newRestrictionChanges2.Designer.cs" />
+    <Compile Remove="Migrations\20200512155721_newRestrictionChanges3.cs" />
+    <Compile Remove="Migrations\20200512155721_newRestrictionChanges3.Designer.cs" />
+    <Compile Remove="Migrations\20200512155912_newRestrictionChanges3.cs" />
+    <Compile Remove="Migrations\20200512155912_newRestrictionChanges3.Designer.cs" />
+    <Compile Remove="Migrations\20200512160133_newRestrictionChanges3.cs" />
+    <Compile Remove="Migrations\20200512160133_newRestrictionChanges3.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

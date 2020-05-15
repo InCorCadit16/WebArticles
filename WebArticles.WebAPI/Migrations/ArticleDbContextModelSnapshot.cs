@@ -112,13 +112,14 @@ namespace WebAPI.Migrations
                         .HasColumnType("nvarchar(2000)")
                         .HasMaxLength(2000);
 
-                    b.Property<long>("UserId")
+                    b.Property<long?>("UserId")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
                     b.HasIndex("UserId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[UserId] IS NOT NULL");
 
                     b.ToTable("Reviewer");
                 });
@@ -285,7 +286,7 @@ namespace WebAPI.Migrations
                         .HasColumnType("bigint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<long>("UserId")
+                    b.Property<long?>("UserId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("WriterDescription")
@@ -295,7 +296,8 @@ namespace WebAPI.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("UserId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[UserId] IS NOT NULL");
 
                     b.ToTable("Writer");
                 });
@@ -455,8 +457,7 @@ namespace WebAPI.Migrations
                     b.HasOne("DataModel.Data.Entities.User", "User")
                         .WithOne("Reviewer")
                         .HasForeignKey("DataModel.Data.Entities.Reviewer", "UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("DataModel.Data.Entities.ReviewerTopic", b =>
@@ -479,8 +480,7 @@ namespace WebAPI.Migrations
                     b.HasOne("DataModel.Data.Entities.User", "User")
                         .WithOne("Writer")
                         .HasForeignKey("DataModel.Data.Entities.Writer", "UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("DataModel.Data.Entities.WriterTopic", b =>

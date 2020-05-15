@@ -13,7 +13,10 @@ namespace DataModel.Data.DbConfig
         public void Configure(EntityTypeBuilder<Reviewer> builder)
         {
             builder.HasOne(r => r.User)
-                .WithOne(u => u.Reviewer).OnDelete(DeleteBehavior.Restrict);
+               .WithOne(u => u.Reviewer).OnDelete(DeleteBehavior.SetNull);
+
+            builder.HasMany(r => r.Comments)
+                .WithOne(c => c.Reviewer).OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

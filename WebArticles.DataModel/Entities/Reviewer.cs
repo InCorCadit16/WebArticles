@@ -13,7 +13,10 @@ namespace DataModel.Data.Entities
         public int ReviewerRating { 
             get
             {
-                return Comments.Sum(c => c.Rating);
+                if (Comments == null)
+                    return 0;
+                else
+                    return Comments.Sum(c => c.Rating);
             }
         }
 
@@ -22,7 +25,7 @@ namespace DataModel.Data.Entities
 
         public virtual ICollection<ReviewerTopic> TopicsLink { get; set; }
 
-        public long UserId { get; set; }
+        public long? UserId { get; set; }
 
         public User User { get; set; }
 

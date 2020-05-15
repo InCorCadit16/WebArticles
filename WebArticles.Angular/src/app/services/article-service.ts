@@ -48,7 +48,8 @@ export class ArticleService {
         return this.http.put<number>('api/articles/rating', { id: articleId, rating: newRating });
     }
 
-    getTopics() {
-        return this.http.get<Topic[]>("api/topics");
+    deleteArticle(id: number) {
+        return this.http.delete<UpdateAnswer>(`api/articles/${id}`);
     }
+
 }

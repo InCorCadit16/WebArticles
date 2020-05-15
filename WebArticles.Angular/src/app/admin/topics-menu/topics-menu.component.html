@@ -1,0 +1,24 @@
+
+<div>
+<mat-form-field>
+    <mat-label>New Topic</mat-label>
+    <input type="text" matInput [(ngModel)]="newTopic" #newTopicInput>
+</mat-form-field>
+
+<button class="add-btn" mat-raised-button color="accent" [disabled]="newTopic.length === 0 || newTopic.length > 200" (click)="onAdd(newTopicInput.value)">Add</button>
+
+<mat-error *ngIf="newTopic.length > 200">Must have no more than 200 characters</mat-error>
+</div>
+
+<mat-list>
+    <mat-list-item *ngFor="let topic of topics; let i = index">
+        <p>{{ topic.topicName }}</p>
+        <button mat-mini-fab color="primary" (click)="onEdit(topic)">
+            <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-mini-fab color="warn" (click)="onDelete(topic.id)">
+            <mat-icon>delete</mat-icon>
+        </button>
+        <mat-divider *ngIf="i < topics.length - 1"></mat-divider>
+    </mat-list-item>
+</mat-list>

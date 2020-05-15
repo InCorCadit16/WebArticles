@@ -138,5 +138,20 @@ namespace WebArticles.WebAPI.Data.Services
 
             return article.Rating;
         }
+        
+        public async Task<UpdateAnswer> DeleteArticle(long id)
+        {
+            try
+            {
+                var article = await _repository.GetAll<Article>().FirstOrDefaultAsync(a => a.Id == id);
+
+                _repository.Delete(article);
+                _repository.SaveChanges();
+                return new UpdateAnswer { Succeeded = true };
+            } catch (Exception e)
+            {
+                return new UpdateAnswer { Succeeded = false, Error = "Faild to delete article" };
+            }
+        }
     }
 }

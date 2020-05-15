@@ -1,0 +1,22 @@
+<h1 mat-dialog-title>Edit {{data.entityName}}</h1>
+<div mat-dialog-content *ngIf = "data.type === 'big'">
+    <mat-form-field appearance="outline">
+        <mat-label></mat-label>
+        <textarea matInput [(ngModel)]="data.value" type="text" rows="8"></textarea>
+    </mat-form-field>
+    <mat-error *ngIf="data.value.length === 0">{{data.entityName}} cannot be empty</mat-error>
+</div>
+
+<div mat-dialog-content *ngIf = "data.type === 'small'">
+    <mat-form-field>
+        <mat-label></mat-label>
+        <input matInput [(ngModel)]="data.value" type="text">
+    </mat-form-field>
+    <mat-error *ngIf="data.value.length === 0">{{data.entityName}} cannot be empty</mat-error>
+    <mat-error *ngIf="data.value.length > 200">{{data.entityName}} cannot be empty</mat-error>
+</div>
+
+<div mat-dialog-actions>
+    <button mat-raised-button (click)="onDiscard()">Discard</button>
+    <button mat-raised-button color="accent" [disabled]="data.value.length === 0 || (data.type === TYPE_SMALL && data.value.length > 200)" [mat-dialog-close]="data.value">Save</button>
+</div>

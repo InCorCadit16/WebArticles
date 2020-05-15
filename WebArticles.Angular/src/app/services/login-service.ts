@@ -51,7 +51,7 @@ export class LoginService {
     hasUserRole(): boolean {
         if (this.isLoggedIn()) {
             let data = JSON.parse(atob(localStorage.getItem('accessToken').split('.')[1]));
-            return data[this.RolesClaim].Split(',').Contains('User');
+            return data[this.RolesClaim].indexOf('User') > -1;
         }
         return null;
     }
@@ -59,9 +59,13 @@ export class LoginService {
     hasAdminRole(): boolean {
         if (this.isLoggedIn()) {
             let data = JSON.parse(atob(localStorage.getItem('accessToken').split('.')[1]));
-            return data[this.RolesClaim].Split(',').Contains('Admin');
+            return data[this.RolesClaim].indexOf('Admin') > -1;
         }
         return null;
+    }
+
+    getToken() {
+        return localStorage.getItem('accessToken');
     }
 
 

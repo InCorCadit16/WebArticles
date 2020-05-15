@@ -1,0 +1,11 @@
+.parent {
+    background: linear-gradient(#FFD7A1, #BB86FF);
+    padding: 50px 32px;
+    min-height: 100%;
+}
+
+a {
+    margin: 0 10px 15px auto;
+    width: fit-content;
+    display: block;
+}

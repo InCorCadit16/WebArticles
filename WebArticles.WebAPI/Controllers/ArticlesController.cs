@@ -14,6 +14,7 @@ namespace WebArticles.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class ArticlesController : ControllerBase
     {
         private readonly ArticleService _articleService;
@@ -101,6 +102,16 @@ namespace WebArticles.Controllers
         public async Task<ActionResult<int>> UpdateArticleRating(RatingUpdate ratingUpdate)
         {
             return await _articleService.UpdateRating(ratingUpdate.Id, ratingUpdate.Rating);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<UpdateAnswer>> DeleteArticle([FromRoute] long id)
+        {
+            var result = await _articleService.DeleteArticle(id);
+            if (result.Succeeded)
+                return Ok(result);
+            else
+                return BadRequest(result);
         }
     }
 }

@@ -19,6 +19,7 @@ namespace WebArticles.WebAPI.Controllers
 {
     [ApiController]
     [Route("api/{controller}")]
+    [AllowAnonymous]
     public class AuthenticationController : ControllerBase
     {
         private readonly AuthenticationService _authenticationService;
@@ -28,7 +29,7 @@ namespace WebArticles.WebAPI.Controllers
             this._authenticationService = authenticationService;
         }
 
-        [AllowAnonymous]
+       
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UserLoginQuery userLoginDto)
         {
@@ -39,7 +40,6 @@ namespace WebArticles.WebAPI.Controllers
                 return Unauthorized(result);
         }
 
-        [AllowAnonymous]
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserRegisterQuery userRegisterDto)
         {

@@ -12,10 +12,11 @@ namespace DataModel.Data.DbConfig
     {
         public void Configure(EntityTypeBuilder<Writer> builder)
         {
-           
-
             builder.HasOne(w => w.User)
-                .WithOne(u => u.Writer).OnDelete(DeleteBehavior.Restrict);
+                .WithOne(u => u.Writer).OnDelete(DeleteBehavior.SetNull);
+
+            builder.HasMany(w => w.Articles)
+                .WithOne(u => u.Writer).OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

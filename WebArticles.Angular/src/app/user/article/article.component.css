@@ -1,0 +1,47 @@
+.parent {
+    min-height: 100%;
+    background: linear-gradient(#FFD7A1, #BB86FF);
+}
+
+.container {
+    padding: 70px 32px;
+}
+
+.content {
+    font-size: 16px;
+    word-break: break-all;
+}
+
+p {
+    color: black;
+}
+
+a {
+    color: #000;
+    text-decoration: none;
+    transition: all 0.4s;
+}
+
+a:hover {
+    color: #2f912f;
+}
+
+.comment-title {
+    margin-top: 30px;
+}
+
+app-rating {
+    display: block;
+    margin: 15px 0;
+}
+
+.actions {
+    float: right;
+    width: fit-content;
+}
+
+
+button {
+    margin-right: 5px;
+    margin-left: 5px;
+}

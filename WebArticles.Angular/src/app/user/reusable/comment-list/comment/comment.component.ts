@@ -1,11 +1,11 @@
 import { Component, OnInit, Input, OnDestroy, HostListener, Output, EventEmitter } from '@angular/core';
-import { Comment } from '../../../data-model/models/comment.model';
+import { Comment } from '../../../../data-model/models/comment.model';
 import { LoginService } from 'src/app/services/login-service';
 import { MatDialog } from '@angular/material/dialog';
-import { EditDialogComponent, TYPE_BIG } from '../../edit-dialog/edit-dialog.component';
-import { DeleteDialogComponent } from '../../delete-dialog/delete-dialog.component';
+import { EditDialogComponent, TYPE_BIG } from '../../../../shared/edit-dialog/edit-dialog.component';
+import { DeleteDialogComponent } from '../../../../shared/delete-dialog/delete-dialog.component';
 import { CommentService } from 'src/app/services/comment-service';
-import { AlertDialogComponent } from '../../alert-dialog/alert-dialog.component';
+import { AlertDialogComponent } from '../../../../shared/alert-dialog/alert-dialog.component';
 
 @Component({
   selector: 'app-comment',

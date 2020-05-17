@@ -100,8 +100,15 @@ namespace WebArticles.WebAPI.Data.Services
         {
             try
             {
+
                 var initialUser = await GetUserById(userModel.Id);
                 var updatedUser = _mapper.Map(userModel, initialUser);
+
+                if (updatedUser.Provider != null && initialUser.Email != updatedUser.Email)
+                {
+                    return new UpdateAnswer { Succeeded = false, Error = @"You can't update email if you are logged in with external provider" };
+                }
+
                 var result = await _userManager.UpdateAsync(updatedUser);
 
                 if (result.Succeeded)
@@ -169,6 +176,11 @@ namespace WebArticles.WebAPI.Data.Services
                 Total = await query.CountAsync(), 
                 Items = await query.GetPage(queryDto.Page, queryDto.PageSize).MapWithAsync<UserRow, User>(_mapper) 
             };
+        }
+
+        public async Task<User> GetUserByExternalId(string externalId)
+        {
+            return await _repository.GetAll<User>().FirstOrDefaultAsync(u => u.ExternalId == externalId);
         }
 
     }

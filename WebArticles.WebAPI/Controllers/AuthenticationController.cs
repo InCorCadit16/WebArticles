@@ -50,5 +50,15 @@ namespace WebArticles.WebAPI.Controllers
                 return BadRequest(result);
            
         }
+
+        [HttpPost("external")]
+        public async Task<IActionResult> LoginExternal([FromBody] ExternalSignInQuery query)
+        {
+            var result = await _authenticationService.LoginExternal(query);
+            if (result.ErrorMessage == null)
+                return Ok(result);
+            else
+                return Unauthorized(result);
+        }
     }
 }

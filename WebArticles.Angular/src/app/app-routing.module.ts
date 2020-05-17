@@ -11,7 +11,7 @@ import { AuthGuard } from './guards/auth.guard';
 import { ArticleComponent } from './user/article/article.component';
 import { EditArticleComponent } from './user/article/edit-article/edit-article.component';
 import { WriterIdGuard } from './guards/writer-id.guard';
-import { NotFoundComponent } from './user/not-found/not-found.component';
+import { NotFoundComponent } from './shared/not-found/not-found.component';
 import { AdminGuard } from './guards/admin.guard';
 
 const routes: Routes = [

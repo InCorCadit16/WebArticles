@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { AdminComponent } from './admin.component';
 import { Routes, RouterModule } from '@angular/router';
 import { SharedModule } from '../shared/shared.module';
-import { NotFoundComponent } from '../user/not-found/not-found.component';
+import { NotFoundComponent } from '../shared/not-found/not-found.component';
 import { UsersTableComponent } from './users-table/users-table.component';
 import { TopicsMenuComponent } from './topics-menu/topics-menu.component';
 

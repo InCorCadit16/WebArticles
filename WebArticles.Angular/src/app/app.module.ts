@@ -3,14 +3,14 @@ import { HttpClientModule} from '@angular/common/http';
 import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
-import { HeaderComponent } from './shared/header/header.component';
-import { ArticlePreviewComponent } from './shared/article-preview/article-preview.component';
+import { HeaderComponent } from './user/reusable/header/header.component';
+import { ArticlePreviewComponent } from './user/reusable/article-preview/article-preview.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { TagsListComponent } from './shared/tags-list/tags-list.component';
-import { RatingComponent } from './shared/rating/rating.component';
-import { EditableTagsListComponent } from './shared/editable-tags-list/editable-tags-list.component';
-import { CommentListComponent } from './shared/comment-list/comment-list.component';
-import { CommentComponent } from './shared/comment-list/comment/comment.component';
+import { TagsListComponent } from './user/reusable/tags-list/tags-list.component';
+import { RatingComponent } from './user/reusable/rating/rating.component';
+import { EditableTagsListComponent } from './user/reusable/editable-tags-list/editable-tags-list.component';
+import { CommentListComponent } from './user/reusable/comment-list/comment-list.component';
+import { CommentComponent } from './user/reusable/comment-list/comment/comment.component';
 import { MainPageComponent } from './user/main-page/main-page.component';
 import { LoginComponent } from './user/login/login.component';
 import { RegistrationComponent } from './user/registration/registration.component';
@@ -34,7 +34,10 @@ import { EditProfileComponent } from './user/profile/edit-profile/edit-profile.c
 import { EditArticleComponent } from './user/article/edit-article/edit-article.component';
 import { AdminGuard } from './guards/admin.guard';
 import { SharedModule } from './shared/shared.module';
-import { AuthInterceptorProvider, AuthInterceptor } from './services/auth-interceptor';
+import { AuthInterceptorProvider } from './providers/auth-interceptor';
+import { SocialLoginModule} from 'angularx-social-login';
+import { provideConfig, ExternalAuthProvider } from './providers/external-auth';
+
 
 
 @NgModule({
@@ -69,6 +72,7 @@ import { AuthInterceptorProvider, AuthInterceptor } from './services/auth-interc
     HttpClientModule,
     BrowserAnimationsModule,
     AppRoutingModule,
+    SocialLoginModule.initialize(provideConfig()),
   ],
   providers: [
     LoginService,
@@ -77,7 +81,8 @@ import { AuthInterceptorProvider, AuthInterceptor } from './services/auth-interc
     WriterIdGuard,
     AuthGuard,
     AdminGuard,
-    AuthInterceptorProvider
+    AuthInterceptorProvider,
+    ExternalAuthProvider,
   ],
   bootstrap: [AppComponent]
 })

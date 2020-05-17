@@ -13,8 +13,18 @@ form {
     text-align: start;
 }
 
-button {
+form > button {
     margin: 20px auto;
+}
+
+button {
+    margin: 10px auto;
+    display: block;
+}
+
+.fb-back {
+    background-color: #4267b2;
+    color: white;
 }
 
 .mat-form-field {

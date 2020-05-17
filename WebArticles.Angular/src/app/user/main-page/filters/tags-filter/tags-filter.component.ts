@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { EditableTagsListComponent } from 'src/app/shared/editable-tags-list/editable-tags-list.component';
+import { EditableTagsListComponent } from 'src/app/user/reusable/editable-tags-list/editable-tags-list.component';
 
 @Component({
   selector: 'app-tags-filter',

@@ -4,7 +4,7 @@ import { LoginService } from 'src/app/services/login-service';
 import { CommentCreate } from 'src/app/data-model/dto/comment-create.dto';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CommentListComponent } from 'src/app/shared/comment-list/comment-list.component';
+import { CommentListComponent } from 'src/app/user/reusable/comment-list/comment-list.component';
 import { AlertDialogComponent } from 'src/app/shared/alert-dialog/alert-dialog.component';
 
 @Component({

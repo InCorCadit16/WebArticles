@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -18,7 +19,7 @@ namespace WebArticles.WebAPI.Infrastructure
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-                .AddJwtBearer(options =>
+            .AddJwtBearer(options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
@@ -35,6 +36,21 @@ namespace WebArticles.WebAPI.Infrastructure
                 };
             });
         }  
+
+        public static void AddGoogleAuthentication(this IServiceCollection services, AuthOptions authOptions)
+        {
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = GoogleDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+            })
+            .AddGoogle(options =>
+            {
+                options.ClientId = "309087529769-7357dag56agntfingo03fjlpe3e92i00.apps.googleusercontent.com";
+                options.ClientSecret = "VG4mGIlY7nKhzMI9GzE5wGew";
+            });
+
+        }
 
         public static AuthOptions ConfigureAuthOptions(this IServiceCollection services, IConfiguration configuration)
         {

@@ -1,5 +1,5 @@
 
-export class UserRegisterQuery {
+export class RegisterQuery {
     firstName: string;
     lastName: string;
     userName: string;

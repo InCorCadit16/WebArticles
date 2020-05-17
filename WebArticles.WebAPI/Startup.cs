@@ -6,12 +6,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using DataModel.Data.Entities;
 using WebArticles.WebAPI.Infrastructure;
-using Microsoft.AspNetCore.Mvc.Authorization;
 using WebAPI.Data.Repositories;
 using WebArticles.WebAPI.Data.Services;
 using WebArticles.WebAPI.Data.Profiles;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace WebAPI
 {
@@ -36,14 +34,15 @@ namespace WebAPI
             services.AddScoped<AuthenticationService>();
             services.AddScoped<CommentService>();
 
-            services.AddAutoMapper( typeof(ArticleProfile),
+            services.AddAutoMapper(typeof(ArticleProfile),
                                     typeof(ArticlePreviewProfile),
                                     typeof(ArticleCreateProfile),
                                     typeof(UserRegisterProfile),
                                     typeof(UserProfile),
                                     typeof(CommentProfile),
                                     typeof(CommentCreateProfile),
-                                    typeof(UserRowProfile));
+                                    typeof(UserRowProfile),
+                                    typeof(ExternalSignInProfile));
 
             services.AddIdentity<User, Role>(options =>
             {
@@ -53,6 +52,7 @@ namespace WebAPI
                 options.Password.RequireDigit = false;
                 options.Password.RequireLowercase = false;
                 options.Password.RequiredUniqueChars = 0;
+                options.User.AllowedUserNameCharacters += " ";
             })
             .AddRoles<Role>()
             .AddRoleManager<RoleManager<Role>>()

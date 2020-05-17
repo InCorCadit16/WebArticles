@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { LoginService } from 'src/app/services/login-service';
-import { UserRegisterQuery } from 'src/app/data-model/dto/user-register-query.dto';
+import { RegisterQuery } from 'src/app/data-model/dto/register-query.dto';
 import { Router } from '@angular/router';
-import { UserLoginQuery } from 'src/app/data-model/dto/user-login-query.dto';
+import { LoginQuery } from 'src/app/data-model/dto/login-query.dto';
 import { MatDialog } from '@angular/material';
 import { AlertDialogComponent } from 'src/app/shared/alert-dialog/alert-dialog.component';
 
@@ -25,13 +25,15 @@ export class RegistrationComponent implements OnInit {
   constructor(private formBuilder: FormBuilder,
               private loginService: LoginService,
               private dialog: MatDialog,
-              private router: Router) { }
+              private router: Router) {
+                loginService.logOut();
+              }
 
   ngOnInit() {
   }
 
   onSubmit() {
-    let userRegister: UserRegisterQuery = {
+    let userRegister: RegisterQuery = {
       ...this.userRegisterModel.value
     }
 
@@ -43,7 +45,7 @@ export class RegistrationComponent implements OnInit {
 
     this.loginService.register(userRegister)
     .subscribe(registerAnswer => {
-        let loginQuery = new UserLoginQuery();
+        let loginQuery = new LoginQuery();
         loginQuery.username = this.username.value;
         loginQuery.password = this.password.value;
 

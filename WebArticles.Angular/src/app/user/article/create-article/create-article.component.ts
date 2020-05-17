@@ -7,12 +7,13 @@ import { ArticleCreate } from 'src/app/data-model/dto/article-create.dto';
 import { LoginService } from 'src/app/services/login-service';
 import { MatDialog } from '@angular/material/dialog';
 import { AlertDialogComponent } from 'src/app/shared/alert-dialog/alert-dialog.component';
+import { TopicService } from 'src/app/services/topic-service';
 
 @Component({
   selector: 'app-create-article',
   templateUrl: './create-article.component.html',
   styleUrls: ['./create-article.component.css'],
-  providers: [ ArticleService, LoginService ]
+  providers: [ ArticleService, LoginService, TopicService ]
 })
 export class CreateArticleComponent implements OnInit {
   articleCreateModel = this.formBuilder.group({
@@ -27,13 +28,14 @@ export class CreateArticleComponent implements OnInit {
 
   constructor(private router: Router,
               private articleService: ArticleService,
+              private topicService: TopicService,
               private loginService: LoginService,
               private dialog: MatDialog,
               private formBuilder: FormBuilder) { }
 
 
   ngOnInit() {
-    this.articleService.getTopics()
+    this.topicService.getTopics()
     .subscribe(topics => { this.topics = topics; })
   }
 

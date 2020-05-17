@@ -1,0 +1,17 @@
+div {
+    padding: 7% 10%;
+    background: linear-gradient(#FFD7A1, #BB86FF);
+    height: 100%;
+}
+
+h1 {
+    font-size: 150px;
+}
+
+h2 {
+    font-size: 45px;
+}
+
+button {
+    margin: 10px 5px;
+}

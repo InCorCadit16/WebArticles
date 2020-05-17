@@ -149,5 +149,8 @@
       }
     }
   },
-  "defaultProject": "WebArticles"
+  "defaultProject": "WebArticles",
+  "cli": {
+    "analytics": false
+  }
 }

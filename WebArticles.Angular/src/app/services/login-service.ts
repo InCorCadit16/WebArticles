@@ -1,9 +1,10 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { UserLoginQuery } from "../data-model/dto/user-login-query.dto";
-import { UserLoginAnswer } from "../data-model/dto/user-login-answer.dto";
-import { UserRegisterQuery } from "../data-model/dto/user-register-query.dto";
-import { UserRegisterAnswer } from "../data-model/dto/user-register-answer.dto";
+import { LoginQuery } from "../data-model/dto/login-query.dto";
+import { LoginAnswer } from "../data-model/dto/login-answer.dto";
+import { RegisterQuery } from "../data-model/dto/register-query.dto";
+import { RegisterAnswer } from "../data-model/dto/register-answer.dto";
+import { ExternalSignInQuery } from "../data-model/dto/external-signin-query.dto";
 
 
 
@@ -12,15 +13,20 @@ export class LoginService {
     private UserIdClaim = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier';
     private UserNameClaim = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name';
     private RolesClaim = 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role';
+    private AuthorizationMethodClaim = 'http://schemas.microsoft.com/ws/2008/06/identity/claims/authenticationmethod';
 
     constructor(private http: HttpClient) { }
 
-    register(userRegister: UserRegisterQuery) {
-        return this.http.post<UserRegisterAnswer>("api/authentication/register", userRegister);
+    register(userRegister: RegisterQuery) {
+        return this.http.post<RegisterAnswer>("api/authentication/register", userRegister);
     }
 
-    login(userLogin: UserLoginQuery) {
-        return this.http.post<UserLoginAnswer>("api/authentication/login", userLogin);
+    login(userLogin: LoginQuery) {
+        return this.http.post<LoginAnswer>("api/authentication/login", userLogin);
+    }
+
+    loginExternal(query: ExternalSignInQuery) {
+        return this.http.post<LoginAnswer>("api/authentication/external", query);
     }
 
     isLoggedIn(): boolean {
@@ -60,6 +66,14 @@ export class LoginService {
         if (this.isLoggedIn()) {
             let data = JSON.parse(atob(localStorage.getItem('accessToken').split('.')[1]));
             return data[this.RolesClaim].indexOf('Admin') > -1;
+        }
+        return null;
+    }
+
+    isAuthorizedExternal(): boolean {
+        if (this.isLoggedIn()) {
+            let data = JSON.parse(atob(localStorage.getItem('accessToken').split('.')[1]));
+            return data[this.AuthorizationMethodClaim] === 'external';
         }
         return null;
     }

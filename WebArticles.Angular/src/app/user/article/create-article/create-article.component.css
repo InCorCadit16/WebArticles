@@ -11,7 +11,7 @@ form {
 }
 
 mat-form-field:nth-child(1) {
-    width: 550px;
+    width: 45%;
 }
 
 mat-form-field:nth-child(1) {
@@ -20,7 +20,7 @@ mat-form-field:nth-child(1) {
 
 mat-form-field:nth-child(3),
 mat-form-field:nth-child(4) {
-    width: 800px;
+    width: 65%;
 }
 
 mat-form-field,

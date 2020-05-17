@@ -1,5 +1,5 @@
 
-export class UserLoginQuery {
+export class LoginQuery {
     username: string;
     password: string;
 }

@@ -20,3 +20,4 @@ C:\Users\incorcadit\source\repos\WebArticles\WebArticles.DataModel\obj\Debug\net
 C:\Users\incorcadit\source\repos\WebArticles\WebArticles.DataModel\obj\Debug\netcoreapp3.1\WebArticles.DataModel.dll
 C:\Users\incorcadit\source\repos\WebArticles\WebArticles.DataModel\obj\Debug\netcoreapp3.1\WebArticles.DataModel.pdb
 C:\Users\incorcadit\source\repos\WebArticles\WebArticles.DataModel\obj\Debug\netcoreapp3.1\WebArticles.DataModel.genruntimeconfig.cache
+C:\Users\incorcadit\source\repos\WebArticles\WebArticles.DataModel\obj\Debug\netcoreapp3.1\WebArticles.DataModel.csproj.CoreCompileInputs.cache

@@ -1,5 +1,4 @@
 import { Component, OnInit, ViewChild, Input, AfterContentInit, ElementRef, OnChanges, SimpleChanges } from '@angular/core';
-
 import { CommentService } from 'src/app/services/comment-service';
 import { PaginatorQuery } from 'src/app/data-model/dto/paginator-query.dto';
 import { tap } from 'rxjs/operators';

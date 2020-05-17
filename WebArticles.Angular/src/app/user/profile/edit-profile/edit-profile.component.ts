@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { UserService } from 'src/app/services/user-service';
 import { LoginService } from 'src/app/services/login-service';
@@ -9,12 +9,13 @@ import { Topic } from 'src/app/data-model/models/topic.model';
 import { Router } from '@angular/router';
 import { CustomValidators } from 'src/app/validators/custom-validators';
 import { AlertDialogComponent } from 'src/app/shared/alert-dialog/alert-dialog.component';
+import { TopicService } from 'src/app/services/topic-service';
 
 @Component({
   selector: 'app-edit-profile',
   templateUrl: './edit-profile.component.html',
   styleUrls: ['./edit-profile.component.css'],
-  providers: [UserService, LoginService, ArticleService]
+  providers: [UserService, LoginService, TopicService]
 })
 export class EditProfileComponent implements OnInit {
   // pattern for url and custom validator for date
@@ -22,7 +23,7 @@ export class EditProfileComponent implements OnInit {
     profilePickLink: ['',[Validators.maxLength(200), CustomValidators.isURL()]],
     firstName: ['',[Validators.minLength(2), Validators.maxLength(30)]],
     lastName: ['',[Validators.minLength(2), Validators.maxLength(30)]],
-    email: ['',[Validators.required, Validators.maxLength(30), Validators.email]],
+    email: [{ value:'', disabled: this.loginService.isAuthorizedExternal() },[Validators.required, Validators.maxLength(30), Validators.email]],
     birthDate: ['',[CustomValidators.dateInPast()]],
     writerDescription: ['', [Validators.maxLength(2000)]],
     writerTopics: [[], []],
@@ -36,7 +37,7 @@ export class EditProfileComponent implements OnInit {
   constructor(private formBuilder: FormBuilder,
               private userService: UserService,
               private loginService: LoginService,
-              private articleService: ArticleService,
+              private topicSerice: TopicService,
               private dialog: MatDialog,
               private router: Router) { }
 
@@ -63,7 +64,7 @@ export class EditProfileComponent implements OnInit {
       this.writerDescription.setValue(user.writerDescription);
       this.reviewerDescription.setValue(user.reviewerDescription);
 
-      this.articleService.getTopics()
+      this.topicSerice.getTopics()
       .subscribe(topics => {
         this.topics = topics;
         this.writerTopics.setValue(topics.map(t => {
@@ -90,7 +91,9 @@ export class EditProfileComponent implements OnInit {
     let userUpdate: User = {
       ...this.userUpdateModel.value
     }
+
     userUpdate.id = this.userId;
+    userUpdate.email = this.email.value;
     userUpdate.writerTopics = this.writerTopics.value.filter(t => t.selected).map(t => {
        return { topicName: t.name, id: this.topics.filter(s => s.topicName === t.name)[0].id }
       });

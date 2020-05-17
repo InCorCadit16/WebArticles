@@ -44,51 +44,61 @@ namespace WebArticles.WebAPI.Data.Services
             if (checkPasswordResult.Succeeded)
             {
                 var user = await _userService.GetUserByUserName(userLoginDto.UserName);
-                var roles = await _userManager.GetRolesAsync(user);
+                string token = await GenerateToken(user);
 
-                var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new Claim(ClaimTypes.Name, user.UserName)
-                };
-
-                foreach (var role in roles)
-                {
-                    claims.Add(new Claim(ClaimTypes.Role, role));
-                }
-
-                var signingCredentials = new SigningCredentials(_authenticationOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256);
-                var jwtToken = new JwtSecurityToken(
-                    issuer: _authenticationOptions.Issuer,
-                    audience: _authenticationOptions.Audience,
-                    claims: claims,
-                    expires: DateTime.Now.AddDays(30),
-                    signingCredentials: signingCredentials
-                );
-
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var encodedToken = tokenHandler.WriteToken(jwtToken);
-
-                return new UserLoginAnswer() { EncodedToken = encodedToken, UserId = user.Id };
+                return new UserLoginAnswer() { EncodedToken = token, UserId = user.Id };
             }
             return new UserLoginAnswer() { ErrorMessage = "Wrong username or password" };
         }
+
+        public async Task<UserLoginAnswer> LoginExternal(ExternalSignInQuery query)
+        {
+            var alreadySignedIn = await _userService.GetUserByExternalId(query.ExternalId);
+
+            if (alreadySignedIn != null)
+            {
+                string token = await GenerateToken(alreadySignedIn);
+                return new UserLoginAnswer { EncodedToken = token, UserId = alreadySignedIn.Id };
+            } else
+            {
+                try
+                {
+                    var user = _mapper.Map<User>(query);
+                    var result = await RegisterNewUser(user);
+
+                    if (result.Succeeded)
+                    {
+                        string token = await GenerateToken(user);
+                        return new UserLoginAnswer { EncodedToken = token, UserId = user.Id };
+                    }
+
+                    return new UserLoginAnswer
+                    { ErrorMessage = result.Errors.Select(e => e.Description).Aggregate((d, res) => res += d + "\n") };
+                } catch (DbUpdateException e)
+                {
+                    return new UserLoginAnswer { ErrorMessage = $"Email \'{query.Email}\' is already taken" };
+                }
+                catch (Exception e)
+                {
+                    return new UserLoginAnswer { ErrorMessage = "Failed to register. Server error. Try later" };
+                }
+
+            }
+        }
+
+        
 
         public async Task<UserRegisterAnswer> Register(UserRegisterQuery userRegisterDto)
         {
             try
             {
                 var user = _mapper.Map<User>(userRegisterDto);
-                var result = await _userManager.CreateAsync(user, userRegisterDto.Password);
+                var result = await RegisterNewUser(user, userRegisterDto.Password);
 
                 if (result.Succeeded)
-                {
-                    _userService.CreateWriterAndReviewer(user);
-                    await _userManager.AddToRoleAsync(user, "User");
                     return new UserRegisterAnswer { User = user };
-                }
-
-                return new UserRegisterAnswer
+                else
+                    return new UserRegisterAnswer
                 { ErrorMessage = result.Errors.Select(e => e.Description).Aggregate((d, res) => res += d + "\n") };
             }
             catch (DbUpdateException e)
@@ -98,6 +108,49 @@ namespace WebArticles.WebAPI.Data.Services
             {
                 return new UserRegisterAnswer { ErrorMessage = "Failed to register. Server error. Try later" };
             }
+        }
+
+        private async Task<string> GenerateToken(User user)
+        {
+            var roles = await _userManager.GetRolesAsync(user);
+
+            var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    new Claim(ClaimTypes.Name, user.UserName),
+                    new Claim(ClaimTypes.AuthenticationMethod, (user.Provider == null? "internal": "external"))
+                };
+
+            roles.ToList().ForEach(r => claims.Add(new Claim(ClaimTypes.Role, r)));
+
+            var signingCredentials = new SigningCredentials(_authenticationOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256);
+            var jwtToken = new JwtSecurityToken(
+                issuer: _authenticationOptions.Issuer,
+                audience: _authenticationOptions.Audience,
+                claims: claims,
+                expires: DateTime.Now.AddDays(30),
+                signingCredentials: signingCredentials
+            );
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            return tokenHandler.WriteToken(jwtToken);
+        }
+
+        private async Task<IdentityResult> RegisterNewUser(User user, string password = null)
+        {
+            IdentityResult result;
+            if (password == null)
+                result = await _userManager.CreateAsync(user);
+            else
+                result = await _userManager.CreateAsync(user, password);
+
+            if (result.Succeeded)
+            {
+                _userService.CreateWriterAndReviewer(user);
+                await _userManager.AddToRoleAsync(user, "User");
+            }
+
+            return result;
         }
     }
 }

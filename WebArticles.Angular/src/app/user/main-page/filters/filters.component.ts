@@ -1,6 +1,5 @@
 import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
 import { Observable} from 'rxjs';
-import { ArticleService } from 'src/app/services/article-service';
 import { TopicsFilterComponent } from './topics-filter/topics-filter.component';
 import { RatingFilterComponent } from './rating-filter/rating-filter.component';
 import { DateFilterComponent } from './date-filter/date-filter.component';

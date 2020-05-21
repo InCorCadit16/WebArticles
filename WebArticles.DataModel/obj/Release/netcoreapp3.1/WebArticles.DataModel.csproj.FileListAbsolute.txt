@@ -1,0 +1,12 @@
+C:\Users\incorcadit\source\repos\WebArticles\WebArticles.DataModel\bin\Release\netcoreapp3.1\WebArticles.DataModel.deps.json
+C:\Users\incorcadit\source\repos\WebArticles\WebArticles.DataModel\bin\Release\netcoreapp3.1\WebArticles.DataModel.runtimeconfig.json
+C:\Users\incorcadit\source\repos\WebArticles\WebArticles.DataModel\bin\Release\netcoreapp3.1\WebArticles.DataModel.runtimeconfig.dev.json
+C:\Users\incorcadit\source\repos\WebArticles\WebArticles.DataModel\bin\Release\netcoreapp3.1\WebArticles.DataModel.dll
+C:\Users\incorcadit\source\repos\WebArticles\WebArticles.DataModel\bin\Release\netcoreapp3.1\WebArticles.DataModel.pdb
+C:\Users\incorcadit\source\repos\WebArticles\WebArticles.DataModel\obj\Release\netcoreapp3.1\WebArticles.DataModel.csprojAssemblyReference.cache
+C:\Users\incorcadit\source\repos\WebArticles\WebArticles.DataModel\obj\Release\netcoreapp3.1\WebArticles.DataModel.csproj.CoreCompileInputs.cache
+C:\Users\incorcadit\source\repos\WebArticles\WebArticles.DataModel\obj\Release\netcoreapp3.1\WebArticles.DataModel.AssemblyInfoInputs.cache
+C:\Users\incorcadit\source\repos\WebArticles\WebArticles.DataModel\obj\Release\netcoreapp3.1\WebArticles.DataModel.AssemblyInfo.cs
+C:\Users\incorcadit\source\repos\WebArticles\WebArticles.DataModel\obj\Release\netcoreapp3.1\WebArticles.DataModel.dll
+C:\Users\incorcadit\source\repos\WebArticles\WebArticles.DataModel\obj\Release\netcoreapp3.1\WebArticles.DataModel.pdb
+C:\Users\incorcadit\source\repos\WebArticles\WebArticles.DataModel\obj\Release\netcoreapp3.1\WebArticles.DataModel.genruntimeconfig.cache

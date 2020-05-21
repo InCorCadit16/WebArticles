@@ -50,11 +50,10 @@
             <mat-form-field appearance="outline" floatLabel='always'>
                 <mat-label>Favourite topics to write:</mat-label>
                 <input matInput class="collapse">
-                <mat-selection-list #writerList (selectionChange)="onWriterTopicSelected(writerList)">
-                    <mat-list-option *ngFor="let topic of writerTopics.value" [selected]="topic.selected" [value]="topic.name">{{topic.name}}</mat-list-option>
+                <mat-selection-list [(ngModel)]="writerTopics" [ngModelOptions]="{standalone: true}">
+                    <mat-list-option *ngFor="let topic of topics" [value]="topic.topicName">{{topic.topicName}}</mat-list-option>
                 </mat-selection-list>
             </mat-form-field>
-
 
             <mat-form-field appearance="outline">
                 <mat-label>Reviewer Description</mat-label>
@@ -65,8 +64,8 @@
             <mat-form-field appearance="outline" floatLabel='always'>
                 <mat-label>Favourite topics to review:</mat-label>
                 <input matInput class="collapse">
-                <mat-selection-list #reviewerList (selectionChange)="onReviewerTopicSelected(reviewerList)">
-                    <mat-list-option *ngFor="let topic of reviewerTopics.value" [selected]="topic.selected" [value]="topic.name">{{topic.name}}</mat-list-option>
+                <mat-selection-list [(ngModel)]="reviewerTopics" [ngModelOptions]="{standalone: true}">
+                    <mat-list-option *ngFor="let topic of topics" [value]="topic.topicName">{{topic.topicName}}</mat-list-option>
                 </mat-selection-list>
             </mat-form-field>
 

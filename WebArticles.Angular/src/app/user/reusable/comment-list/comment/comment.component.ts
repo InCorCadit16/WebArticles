@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, OnDestroy, HostListener, Output, EventEmitter } from '@angular/core';
-import { Comment } from '../../../../data-model/models/comment.model';
+import { Comment } from '../../../../data-model/models/comment';
 import { LoginService } from 'src/app/services/login-service';
 import { MatDialog } from '@angular/material/dialog';
 import { EditDialogComponent, TYPE_BIG } from '../../../../shared/edit-dialog/edit-dialog.component';
@@ -11,7 +11,7 @@ import { AlertDialogComponent } from '../../../../shared/alert-dialog/alert-dial
   selector: 'app-comment',
   templateUrl: './comment.component.html',
   styleUrls: ['./comment.component.css'],
-  providers: [ LoginService, CommentService ]
+  providers: [LoginService, CommentService]
 })
 export class CommentComponent implements OnInit {
   @Input() comment: Comment;
@@ -33,13 +33,11 @@ export class CommentComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(data => {
       if (data) {
-        this.commentService.updateComment(this.comment.id, data).subscribe(result => {
-          if (result.succeeded) {
-            this.comment.content = data;
-          } else {
-            this.showErrorDialog(result.error);
-          }
-        });
+        this.commentService.updateComment(this.comment.id, data)
+          .subscribe(
+            success => { this.comment.content = data; },
+            error => { this.showErrorDialog(error.error); }
+          );
       }
     })
   }
@@ -51,15 +49,15 @@ export class CommentComponent implements OnInit {
     });
 
     dialogRef.afterClosed()
-    .subscribe(data => {
-      if (data) {
-        this.commentService.deleteComment(data)
-        .subscribe(
-          result => { this.deleted.emit(); },
-          errorResponse => { this.showErrorDialog(errorResponse.error.error);
-        });
-      }
-    })
+      .subscribe(data => {
+        if (data) {
+          this.commentService.deleteComment(data)
+            .subscribe(
+              success => { this.deleted.emit(); },
+              error => { this.showErrorDialog(error.error); }
+            );
+        }
+      })
   }
 
   showErrorDialog(errorMessage: string) {

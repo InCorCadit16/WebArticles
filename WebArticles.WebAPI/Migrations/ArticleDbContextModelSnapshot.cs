@@ -34,7 +34,7 @@ namespace WebAPI.Migrations
                         .HasColumnType("nvarchar(1000)")
                         .HasMaxLength(1000);
 
-                    b.Property<DateTime>("PublichDate")
+                    b.Property<DateTime>("PublishDate")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("Rating")
@@ -81,7 +81,7 @@ namespace WebAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("PublichDate")
+                    b.Property<DateTime>("PublishDate")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("Rating")
@@ -214,9 +214,6 @@ namespace WebAPI.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<string>("ExternalId")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("FirstName")
                         .HasColumnType("nvarchar(30)")
                         .HasMaxLength(30);
@@ -251,9 +248,6 @@ namespace WebAPI.Migrations
                     b.Property<string>("ProfilePickLink")
                         .HasColumnType("nvarchar(500)")
                         .HasMaxLength(500);
-
-                    b.Property<string>("Provider")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
@@ -463,7 +457,7 @@ namespace WebAPI.Migrations
                     b.HasOne("DataModel.Data.Entities.User", "User")
                         .WithOne("Reviewer")
                         .HasForeignKey("DataModel.Data.Entities.Reviewer", "UserId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("DataModel.Data.Entities.ReviewerTopic", b =>

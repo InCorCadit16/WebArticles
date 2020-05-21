@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WebArticles.WebAPI.Data.Dto;
+using WebArticles.WebAPI.Data.Dtos;
 
 namespace WebArticles.WebAPI.Data.Profiles
 {
@@ -13,7 +13,7 @@ namespace WebArticles.WebAPI.Data.Profiles
 
         public UserRegisterProfile()
         {
-            this.CreateMap<UserRegisterQuery, User>().ReverseMap();
+            this.CreateMap<UserRegisterQueryDto, User>();
         }
     }
 }

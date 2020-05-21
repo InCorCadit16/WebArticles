@@ -4,7 +4,7 @@
         <h1>{{ article.title }}</h1>
         <div class="actions" *ngIf="article.userId == loginService.getUserId()">
             <button mat-fab color="primary" (click)="onEdit()"><mat-icon>edit</mat-icon></button>
-            <button mat-fab color="warn" (click)="onDelete()"><mat-icon>edit</mat-icon></button>
+            <button mat-fab color="warn" (click)="onDelete()"><mat-icon>delete</mat-icon></button>
         </div>
         <h3>Topic: {{ article.topic.topicName }}</h3>
         <app-rating
@@ -12,21 +12,27 @@
         [changable]="article.userId !== loginService.getUserId()"
         [sourceType]="'article'"
         [sourceId]="article.id"></app-rating>
+
         <div class="content">{{ article.content }}</div>
         <app-tags-list [tags]="article.tags"></app-tags-list>
+
         <p>Author: <a routerLink="/profile/{{ article.userId }}" routerLinkActive="active">{{ article.userName }}</a></p>
-        <p>{{ article.publichDate| date:'dd.MM.yyyy, h:mm a' }}</p>
+        <p>{{ article.publishDate| date:'dd.MM.yyyy, h:mm a' }}</p>
+
         <h3 class='comment-title'>Comments</h3>
+
         <app-add-comment
         *ngIf="article.userId !== loginService.getUserId()"
         [articleId]="article.id"
         [commentList]="commentList">
         </app-add-comment>
+
         <app-comment-list
         [id]="article.id"
         [sourceType]="'article'"
         [showArticle]="false"
         [showSorting]="true"
-        #commentList></app-comment-list>
+        #commentList>
+        </app-comment-list>
     </div>
 </div>

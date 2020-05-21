@@ -11,6 +11,7 @@
     <ApplicationIcon />
     <OutputType>Exe</OutputType>
     <StartupObject></StartupObject>
+    <UserSecretsId>b9b372be-82f0-439f-8186-693b8e9654a2</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -47,6 +48,8 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.3" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.1.1" />
   </ItemGroup>
 
   <ItemGroup>

@@ -2,10 +2,10 @@ import { DataSource } from "@angular/cdk/table";
 import { BehaviorSubject, Observable, of, pipe } from "rxjs";
 import { finalize } from "rxjs/operators";
 import { CollectionViewer} from "@angular/cdk/collections";
-import { Comment } from '../models/comment.model';
+import { Comment } from '../models/comment';
 import { CommentService } from '../../services/comment-service';
-import { PaginatorQuery } from "../dto/paginator-query.dto";
 import { LoginService } from "src/app/services/login-service";
+import { PaginatorQuery } from "../infrastructure/models/paginator-query";
 
 export class CommentsDataSource implements DataSource<Comment> {
 

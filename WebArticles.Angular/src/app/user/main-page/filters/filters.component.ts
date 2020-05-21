@@ -4,9 +4,11 @@ import { TopicsFilterComponent } from './topics-filter/topics-filter.component';
 import { RatingFilterComponent } from './rating-filter/rating-filter.component';
 import { DateFilterComponent } from './date-filter/date-filter.component';
 import { TagsFilterComponent } from './tags-filter/tags-filter.component';
-import { Filters } from 'src/app/data-model/dto/filters.dto';
-import { Topic } from 'src/app/data-model/models/topic.model';
+import { Topic } from 'src/app/data-model/models/topic';
 import { TopicService } from 'src/app/services/topic-service';
+import { Filter } from 'src/app/data-model/infrastructure/models/filter';
+import { FiltersCompareActions } from 'src/app/data-model/infrastructure/models/filters-compare-actions';
+import { RequestFilters } from 'src/app/data-model/infrastructure/models/request-filters';
 
 @Component({
   selector: 'app-filters',
@@ -23,7 +25,7 @@ export class FiltersComponent implements OnInit {
   @ViewChild(DateFilterComponent, { static: false }) dateFilter: DateFilterComponent;
   @ViewChild(TagsFilterComponent, { static: false }) tagsFilter: TagsFilterComponent;
 
-  @Output() applyFilters = new EventEmitter<Filters>();
+  @Output() applyFilters = new EventEmitter<RequestFilters>();
 
   constructor(private topicService: TopicService) {
 
@@ -34,21 +36,21 @@ export class FiltersComponent implements OnInit {
   }
 
   onApplyFilters() {
-      let chosenTopics = this.topicsFilter.topicsListView.options.map((o) =>  o.selected? o.value: "")
-      .filter(val => val.length != 0);
+      let chosenTopics = JSON.stringify(this.topicsFilter.topicsListView.options.map((o) =>  o.selected? o.value: "").filter(val => val.length != 0)).replace(/[\"\]\[]/g,'');
 
-      let filters: Filters = new Filters();
+      let requestFilters = new RequestFilters();
 
       // Topics
       if (chosenTopics.length != 0)
-        filters.topics = JSON.stringify(chosenTopics);
+        requestFilters.filters.push(new Filter("topic.topicName", chosenTopics, FiltersCompareActions.In));
+
 
       // Rating
       if (this.ratingFilter.minValue != null)
-        filters.minRating = +this.ratingFilter.minValue;
+        requestFilters.filters.push(new Filter("rating", +this.ratingFilter.minValue, FiltersCompareActions.isGreaterThenOrEqual));
 
       if (this.ratingFilter.maxValue != null)
-        filters.maxRating = +this.ratingFilter.maxValue;
+        requestFilters.filters.push(new Filter("rating", +this.ratingFilter.maxValue, FiltersCompareActions.isLessThenOrEqual));
 
       // Publish Date
       let start = this.dateFilter.startDate;
@@ -57,20 +59,20 @@ export class FiltersComponent implements OnInit {
 
       if (start != null) {
         start.setHours(0,0);
-        filters.minDate = start.toJSON();
+        requestFilters.filters.push(new Filter("publichDate", start.toJSON(), FiltersCompareActions.isGreaterThenOrEqual));
       }
 
 
       if (end != null) {
         end.setHours(23,59);
-        filters.maxDate = end.toJSON();
+        requestFilters.filters.push(new Filter("publichDate", end.toJSON(), FiltersCompareActions.isLessThenOrEqual));
       }
 
       // Tags
       if (this.tagsFilter.tags.length != 0)
-        filters.tags = '#' + this.tagsFilter.tags.join('#');
+        requestFilters.tags = this.tagsFilter.tags;
 
-      this.applyFilters.emit(filters);
+      this.applyFilters.emit(requestFilters);
   }
 
 }

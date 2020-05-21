@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ArticleService } from 'src/app/services/article-service'
-import { Article } from 'src/app/data-model/models/article.model';
+import { Article } from 'src/app/data-model/models/article';
 import { LoginService } from 'src/app/services/login-service';
 import { MatDialog } from '@angular/material';
 import { DeleteDialogComponent } from 'src/app/shared/delete-dialog/delete-dialog.component';

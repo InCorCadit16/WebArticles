@@ -6,10 +6,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using DataModel.Data.Entities;
 using WebArticles.WebAPI.Infrastructure;
-using WebAPI.Data.Repositories;
 using WebArticles.WebAPI.Data.Services;
 using WebArticles.WebAPI.Data.Profiles;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using WebArticles.WebAPI.Infrastructure.Middlewares;
+using WebArticles.WebAPI.Data.Repositories.Implementations;
+using WebAPI.Data.Repositories.Interfaces;
+using System.Reflection;
+using Microsoft.AspNetCore.Http;
 
 namespace WebAPI
 {
@@ -25,8 +30,15 @@ namespace WebAPI
         // Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<ArticleDbContext>();
-            services.AddScoped<IRepository, DbRepository>();
+            services.AddDbContext<ArticleDbContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("ArticlesDatabase")), ServiceLifetime.Transient);
+            
+            services.AddScoped<ArticleRepository>();
+            services.AddScoped<UserRepository>();
+            services.AddScoped<TopicRepository>();
+            services.AddScoped<CommentRepository>();
+            services.AddScoped<IRepository<Writer>, EntityRepository<Writer>>();
+            services.AddScoped<IRepository<Reviewer>, EntityRepository<Reviewer>>();
             
             services.AddScoped<ArticleService>();
             services.AddScoped<TopicService>();    
@@ -34,15 +46,7 @@ namespace WebAPI
             services.AddScoped<AuthenticationService>();
             services.AddScoped<CommentService>();
 
-            services.AddAutoMapper(typeof(ArticleProfile),
-                                    typeof(ArticlePreviewProfile),
-                                    typeof(ArticleCreateProfile),
-                                    typeof(UserRegisterProfile),
-                                    typeof(UserProfile),
-                                    typeof(CommentProfile),
-                                    typeof(CommentCreateProfile),
-                                    typeof(UserRowProfile),
-                                    typeof(ExternalSignInProfile));
+            services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
             services.AddIdentity<User, Role>(options =>
             {
@@ -58,15 +62,25 @@ namespace WebAPI
             .AddRoleManager<RoleManager<Role>>()
             .AddEntityFrameworkStores<ArticleDbContext>();
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy("default", policy =>
+                {
+                    policy.WithOrigins("https://localhost:4200")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
+                });
+            });
+
             var authOptions = services.ConfigureAuthOptions(Configuration);
             services.AddJwtAuthentication(authOptions);
+            services.AddGoogleAuthentication(Configuration);
             services.AddAuthorization();
 
             services.AddControllers().AddNewtonsoftJson(options =>
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
             );
-
-
         }
 
         // Use this method to configure the HTTP request pipeline.
@@ -78,10 +92,11 @@ namespace WebAPI
             }
             else
             {
-                app.UseExceptionHandler("/Error");
+                app.UseMiddleware<ExceptionHandlingMiddleware>();
             }
+            app.UseHttpsRedirection();
 
-            app.UseStaticFiles();
+            app.UseCors("default");
 
             app.UseRouting();
 

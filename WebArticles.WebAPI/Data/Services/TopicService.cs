@@ -1,78 +1,63 @@
 ﻿using AutoMapper;
 using DataModel.Data.Entities;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using WebAPI.Data.Repositories;
-using WebArticles.WebAPI.Data.Dto;
+using WebArticles.WebAPI.Data.Dtos;
+using WebArticles.WebAPI.Data.Repositories.Implementations;
+using WebArticles.WebAPI.Infrastructure.Exceptions;
 
 namespace WebArticles.WebAPI.Data.Services
 {
     public class TopicService
     {
-        private readonly IRepository _repository;
+        private readonly TopicRepository _repository;
         private readonly IMapper _mapper;
 
-        public TopicService(IRepository repository, IMapper mapper)
+        public TopicService(TopicRepository repository, IMapper mapper)
         {
             _repository = repository;
             _mapper = mapper;
         }
 
-        public async Task<Topic[]> GetAll()
+        public async Task<TopicDto[]> GetAll()
         {
-            return await _repository.GetAll<Topic>().OrderBy(t => t.Id).ToArrayAsync();
+            return _mapper.Map<TopicDto[]>((await _repository.GetAll()).ToArray());
         }
 
-        public Topic GetTopicByName(string name)
+        public async Task<TopicDto> GetTopicByName(string name)
         {
-            return _repository.GetAll<Topic>().FirstOrDefault(t => t.TopicName == name);
+            return _mapper.Map<TopicDto>(await _repository.GetTopicByName(name));
         }
 
-        public CreateAnswer CreateTopic(string topicName)
+        public async Task<TopicDto> CreateTopic(string topicName)
         {
-            try
+            if (topicName.Contains(","))
             {
-                var topic = new Topic { TopicName = topicName };
-
-                _repository.Insert(topic);
-                _repository.SaveChanges();
-                return new CreateAnswer { Succeeded = true, Id = topic.Id };
-            } catch (Exception e)
-            {
-                return new CreateAnswer { Succeeded = false, Error = $"Failed to create topic \"{topicName}\"" };
+                throw new FormInvalidException("", "Topic name cannot contain ','");
             }
+
+            var topic = new Topic { TopicName = topicName };
+
+            topic = await _repository.Insert(topic);
+            return _mapper.Map<TopicDto>(topic);
         }
 
-        public async Task<UpdateAnswer> DeleteTopic(long id)
+        public async Task DeleteTopic(long id)
         {
-            try
-            {
-                var topic = await _repository.GetAll<Topic>().FirstOrDefaultAsync(t => t.Id == id);
-
-                _repository.Delete(topic);
-                _repository.SaveChanges();
-                return new UpdateAnswer { Succeeded = true };
-            } catch (Exception e)
-            {
-                return new UpdateAnswer { Succeeded = false, Error = "Failed to delete topic" };
-            }
+            await _repository.Delete(id);
         }
 
-        public UpdateAnswer UpdateTopic(Topic topic)
+        public async Task<TopicDto> UpdateTopic(TopicDto topicDto)
         {
-            try
+            if (topicDto.TopicName.Contains(","))
             {
-                _repository.Update(topic);
-                _repository.SaveChanges();
-                return new UpdateAnswer { Succeeded = true };
-            } catch (Exception e)
-            {
-                return new UpdateAnswer { Succeeded = false, Error = $"Failed to update topic to \"{topic.TopicName}\"" };
+                throw new FormInvalidException("", "Topic name cannot contain ','");
             }
-        }
 
+            var topic = await _repository.GetById(topicDto.Id);
+            topic = _mapper.Map(topicDto, topic);
+            await _repository.Update(topic);
+
+            return topicDto;
+        }
     }
 }

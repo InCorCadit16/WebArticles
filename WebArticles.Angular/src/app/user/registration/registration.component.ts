@@ -1,33 +1,33 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { LoginService } from 'src/app/services/login-service';
-import { RegisterQuery } from 'src/app/data-model/dto/register-query.dto';
-import { Router } from '@angular/router';
-import { LoginQuery } from 'src/app/data-model/dto/login-query.dto';
 import { MatDialog } from '@angular/material';
 import { AlertDialogComponent } from 'src/app/shared/alert-dialog/alert-dialog.component';
+import { Router } from '@angular/router';
+import { RegisterQuery } from 'src/app/data-model/models/register-query';
+import { LoginQuery } from 'src/app/data-model/models/login-query';
 
 @Component({
   selector: 'app-registration',
   templateUrl: './registration.component.html',
   styleUrls: ['./registration.component.css'],
-  providers: [ LoginService ]
+  providers: [LoginService]
 })
 export class RegistrationComponent implements OnInit {
   userRegisterModel = this.formBuilder.group({
-    firstName: ['',[Validators.minLength(2), Validators.maxLength(30)]],
-    lastName: ['',[Validators.minLength(2), Validators.maxLength(30)]],
-    username: ['',[Validators.required, Validators.minLength(4), Validators.maxLength(30)]],
-    email: ['',[Validators.required, Validators.maxLength(30), Validators.email]],
-    password: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(30)]]
+    firstName: ['', [Validators.minLength(2), Validators.maxLength(30)]],
+    lastName: ['', [Validators.minLength(2), Validators.maxLength(30)]],
+    username: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(30)]],
+    email: ['', [Validators.required, Validators.maxLength(30), Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(30)]]
   });
 
   constructor(private formBuilder: FormBuilder,
-              private loginService: LoginService,
-              private dialog: MatDialog,
-              private router: Router) {
-                loginService.logOut();
-              }
+    private loginService: LoginService,
+    private dialog: MatDialog,
+    private router: Router) {
+    loginService.logOut();
+  }
 
   ngOnInit() {
   }
@@ -44,29 +44,29 @@ export class RegistrationComponent implements OnInit {
       userRegister.firstName = null;
 
     this.loginService.register(userRegister)
-    .subscribe(registerAnswer => {
+      .subscribe(registerAnswer => {
         let loginQuery = new LoginQuery();
         loginQuery.username = this.username.value;
         loginQuery.password = this.password.value;
 
         this.loginService.login(loginQuery)
-        .subscribe(loginAnswer => {
-              localStorage.setItem('accessToken', loginAnswer.encodedToken);
-              this.router.navigate(['profile',loginAnswer.userId]);
-        },
+          .subscribe(loginAnswer => {
+            localStorage.setItem('accessToken', loginAnswer.encodedToken);
+            this.router.navigate(['profile', loginAnswer.userId]);
+          },
+            response => {
+              this.dialog.open(AlertDialogComponent, {
+                width: '40%',
+                data: { title: 'Fail', content: response.error.errorMessage }
+              });
+            });
+      },
         response => {
           this.dialog.open(AlertDialogComponent, {
             width: '40%',
             data: { title: 'Fail', content: response.error.errorMessage }
           });
         });
-    },
-    response => {
-      this.dialog.open(AlertDialogComponent, {
-        width: '40%',
-        data:{ title: 'Fail', content: response.error.errorMessage}
-      });
-    });
   }
 
   get firstName() {

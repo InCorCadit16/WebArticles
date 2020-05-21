@@ -1,8 +1,9 @@
 ﻿using AutoMapper;
 using DataModel.Data.Entities;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -10,9 +11,12 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
+using System.Security.Policy;
 using System.Threading.Tasks;
-using WebArticles.WebAPI.Data.Dto;
+using WebArticles.WebAPI.Data.Dtos;
+using WebArticles.WebAPI.Data.Repositories.Implementations;
 using WebArticles.WebAPI.Infrastructure;
+using WebArticles.WebAPI.Infrastructure.Exceptions;
 
 namespace WebArticles.WebAPI.Data.Services
 {
@@ -22,92 +26,98 @@ namespace WebArticles.WebAPI.Data.Services
         private readonly SignInManager<User> _signInManager;
         private readonly UserManager<User> _userManager;
         private readonly UserService _userService;
+        private readonly UserRepository _repository;
         private readonly IMapper _mapper;
 
         public AuthenticationService(IOptions<AuthOptions> authenticationOptions,
                                         SignInManager<User> signInManager,
                                         UserManager<User> userManager,
                                         UserService userService,
-                                        IMapper mapper)
+                                        IMapper mapper,
+                                        UserRepository repository)
         {
             this._authenticationOptions = authenticationOptions.Value;
             this._signInManager = signInManager;
             this._userManager = userManager;
             this._userService = userService;
             this._mapper = mapper;
+            this._repository = repository;
         }
 
-        public async Task<UserLoginAnswer> Login(UserLoginQuery userLoginDto)
+        public async Task<UserLoginAnswerDto> Login(UserLoginQueryDto userLoginDto)
         {
             var checkPasswordResult = await _signInManager.PasswordSignInAsync(userLoginDto.UserName, userLoginDto.Password, false, false);
 
-            if (checkPasswordResult.Succeeded)
-            {
-                var user = await _userService.GetUserByUserName(userLoginDto.UserName);
-                string token = await GenerateToken(user);
-
-                return new UserLoginAnswer() { EncodedToken = token, UserId = user.Id };
+            if (!checkPasswordResult.Succeeded)
+            { 
+                throw new FormInvalidException($"", "Wrong username or password", StatusCodes.Status401Unauthorized);
             }
-            return new UserLoginAnswer() { ErrorMessage = "Wrong username or password" };
+
+            var user = await _userService.GetUserByUserName(userLoginDto.UserName);
+            string token = await GenerateToken(user);
+
+            return new UserLoginAnswerDto() { EncodedToken = token, UserId = user.Id };
         }
 
-        public async Task<UserLoginAnswer> LoginExternal(ExternalSignInQuery query)
+        public AuthenticationProperties ConfigureProperties(IUrlHelper url, string redirectMethod)
         {
-            var alreadySignedIn = await _userService.GetUserByExternalId(query.ExternalId);
+            
+            return _signInManager.ConfigureExternalAuthenticationProperties("Google", url.Action(redirectMethod));
+        }
 
-            if (alreadySignedIn != null)
+        public async Task HandleExternalLogin()
+        {
+            var info = await _signInManager.GetExternalLoginInfoAsync();
+
+            var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false);
+
+            if (!result.Succeeded)
             {
-                string token = await GenerateToken(alreadySignedIn);
-                return new UserLoginAnswer { EncodedToken = token, UserId = alreadySignedIn.Id };
-            } else
-            {
-                try
+                var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+                var newUser = new User
                 {
-                    var user = _mapper.Map<User>(query);
-                    var result = await RegisterNewUser(user);
-
-                    if (result.Succeeded)
-                    {
-                        string token = await GenerateToken(user);
-                        return new UserLoginAnswer { EncodedToken = token, UserId = user.Id };
-                    }
-
-                    return new UserLoginAnswer
-                    { ErrorMessage = result.Errors.Select(e => e.Description).Aggregate((d, res) => res += d + "\n") };
-                } catch (DbUpdateException e)
+                    UserName = email,
+                    Email = email
+                };
+                var createResult = await _userManager.CreateAsync(newUser);
+                if (!createResult.Succeeded)
                 {
-                    return new UserLoginAnswer { ErrorMessage = $"Email \'{query.Email}\' is already taken" };
+                    throw new FormInvalidException("", createResult.Errors.Select(e => e.Description).Aggregate((d, res) => res += d + "\n"));
                 }
-                catch (Exception e)
-                {
-                    return new UserLoginAnswer { ErrorMessage = "Failed to register. Server error. Try later" };
-                }
+
+                await _userService.CreateWriterAndReviewer(newUser);
+                await _userManager.AddLoginAsync(newUser, info);
+                await SignInExternalUser(newUser, info);
 
             }
         }
 
-        
-
-        public async Task<UserRegisterAnswer> Register(UserRegisterQuery userRegisterDto)
+        private async Task SignInExternalUser(User user, ExternalLoginInfo info)
         {
-            try
-            {
-                var user = _mapper.Map<User>(userRegisterDto);
-                var result = await RegisterNewUser(user, userRegisterDto.Password);
+            var userClaims = info.Principal.Claims.Append(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()))
+                                .Append(new Claim(ClaimTypes.Name, user.UserName))
+                                .Append(new Claim(ClaimTypes.Role, "User"));
 
-                if (result.Succeeded)
-                    return new UserRegisterAnswer { User = user };
-                else
-                    return new UserRegisterAnswer
-                { ErrorMessage = result.Errors.Select(e => e.Description).Aggregate((d, res) => res += d + "\n") };
-            }
-            catch (DbUpdateException e)
+            await _userManager.AddClaimsAsync(user, userClaims);
+            await _signInManager.SignInAsync(user, isPersistent: false);
+        }
+
+        public async Task<UserRegisterAnswerDto> Register(UserRegisterQueryDto userRegisterDto)
+        {
+            if ((await _repository.GetUserByEmail(userRegisterDto.Email)) != null)
             {
-                return new UserRegisterAnswer { ErrorMessage = $"Email \'{userRegisterDto.Email}\' is already taken" };
-            } catch (Exception e)
-            {
-                return new UserRegisterAnswer { ErrorMessage = "Failed to register. Server error. Try later" };
+                throw new FormInvalidException("", $"Email \'{userRegisterDto.Email}\' is already taken");
             }
+
+            var user = _mapper.Map<User>(userRegisterDto);
+            var result = await RegisterNewUser(user, userRegisterDto.Password);
+
+            if (!result.Succeeded)
+            {
+                throw new FormInvalidException("", result.Errors.Select(e => e.Description).Aggregate((d, res) => res += d + "\n"));
+            }
+
+            return new UserRegisterAnswerDto { User = user };
         }
 
         private async Task<string> GenerateToken(User user)
@@ -117,8 +127,7 @@ namespace WebArticles.WebAPI.Data.Services
             var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new Claim(ClaimTypes.Name, user.UserName),
-                    new Claim(ClaimTypes.AuthenticationMethod, (user.Provider == null? "internal": "external"))
+                    new Claim(ClaimTypes.Name, user.UserName)
                 };
 
             roles.ToList().ForEach(r => claims.Add(new Claim(ClaimTypes.Role, r)));
@@ -146,7 +155,7 @@ namespace WebArticles.WebAPI.Data.Services
 
             if (result.Succeeded)
             {
-                _userService.CreateWriterAndReviewer(user);
+                await _userService.CreateWriterAndReviewer(user);
                 await _userManager.AddToRoleAsync(user, "User");
             }
 

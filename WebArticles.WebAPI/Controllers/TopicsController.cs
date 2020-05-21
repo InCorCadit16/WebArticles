@@ -2,14 +2,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using WebArticles.WebAPI.Data.Dto;
+using WebArticles.WebAPI.Data.Dtos;
 using WebArticles.WebAPI.Data.Services;
 
 namespace WebAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
     public class TopicsController : ControllerBase
     {
         private readonly TopicService _topicService;
@@ -21,43 +20,39 @@ namespace WebAPI.Controllers
 
         [AllowAnonymous]
         [HttpGet]
-        public async Task<ActionResult<Topic[]>> GetTopics()
+        public async Task<ActionResult<TopicDto[]>> GetTopics()
         {
             return await _topicService.GetAll();
         }
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public ActionResult<CreateAnswer> CreateTopic([FromBody] Topic topic) 
+        public async Task<IActionResult> CreateTopic([FromBody] TopicDto topic) 
         {
-            var result = _topicService.CreateTopic(topic.TopicName);
-
-            if (result.Succeeded)
-                return Created("", result);
+            var newTopic = await _topicService.CreateTopic(topic.TopicName);
+            if (newTopic != null)
+                return Ok(newTopic);
             else
-                return BadRequest(result);
+                return BadRequest();
         }
 
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<UpdateAnswer>> DeleteTopic([FromRoute] long id)
+        public async Task<IActionResult> DeleteTopic(long id)
         {
-            var result = await _topicService.DeleteTopic(id);
-            if (result.Succeeded)
-                return Accepted(result);
-            else
-                return BadRequest(result);
+            await _topicService.DeleteTopic(id);
+            return NoContent();
         }
 
         [HttpPut]
         [Authorize(Roles = "Admin")]
-        public ActionResult<UpdateAnswer> UpdateTopic([FromBody] Topic topic)
+        public async Task<ActionResult<TopicDto>> UpdateTopic([FromBody] TopicDto topic)
         {
-            var result = _topicService.UpdateTopic(topic);
-            if (result.Succeeded)
-                return Accepted(result);
+            var updatedTopic = await _topicService.UpdateTopic(topic);
+            if (updatedTopic != null)
+                return Ok(updatedTopic);
             else
-                return BadRequest(result);
+                return BadRequest();
         }
     }
 }

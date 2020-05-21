@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, AfterContentInit, AfterViewInit, ViewChildren, QueryList, OnDestroy, ElementRef, SimpleChanges, OnChanges } from '@angular/core';
 import { ActivatedRoute, Router, NavigationExtras } from '@angular/router';
 import { UserService } from 'src/app/services/user-service';
-import { User } from 'src/app/data-model/models/user.model';
+import { User } from 'src/app/data-model/models/user';
 import { ArticleService } from 'src/app/services/article-service';
 import { UserArticleDataSource } from 'src/app/data-model/data-sources/user-articles.data-source';
 import { MatPaginator, MatDivider, MatDialog } from '@angular/material';
@@ -10,6 +10,7 @@ import { LoginService } from 'src/app/services/login-service';
 import { isUndefined } from 'util';
 import { DeleteDialogComponent } from 'src/app/shared/delete-dialog/delete-dialog.component';
 import { AlertDialogComponent } from 'src/app/shared/alert-dialog/alert-dialog.component';
+import { PaginatorQuery } from 'src/app/data-model/infrastructure/models/paginator-query';
 
 @Component({
   selector: 'app-profile',
@@ -45,7 +46,10 @@ export class ProfileComponent implements OnInit, AfterContentInit, OnDestroy, On
         this.userService.getUser(this.userId)
         .subscribe(user => { this.user = user });
 
-        this.userArticlesDataSource.loadArticlePreviews(this.userId, 1);
+        let query = new PaginatorQuery();
+        query.pageSize = 5;
+        query.page = 1;
+        this.userArticlesDataSource.loadArticlePreviews(this.userId, query);
       });
   }
 
@@ -83,9 +87,13 @@ export class ProfileComponent implements OnInit, AfterContentInit, OnDestroy, On
   ngAfterContentInit() {
       this.userArticlesDataSource.total.subscribe(len => this.articlesPaginator.length = len);
       this.articlesPaginator.pageSize = 5;
+      this.articlesPaginator.pageSizeOptions = [5, 10, 25];
       this.articlesPaginator.page.pipe(
         tap(() => {
-          this.userArticlesDataSource.loadArticlePreviews(this.userId, this.articlesPaginator.pageIndex + 1);
+          let query = new PaginatorQuery();
+          query.page = this.articlesPaginator.pageIndex + 1;
+          query.pageSize = this.articlesPaginator.pageSize;
+          this.userArticlesDataSource.loadArticlePreviews(this.userId, query);
           window.scroll(0,this.aboveArticles.nativeElement.getBoundingClientRect().top + window.pageYOffset);
         })
       ).subscribe();
@@ -96,8 +104,12 @@ export class ProfileComponent implements OnInit, AfterContentInit, OnDestroy, On
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (!isUndefined(this.userArticlesDataSource))
-      this.userArticlesDataSource.loadArticlePreviews(this.userId, 1);
+    if (!isUndefined(this.userArticlesDataSource)) {
+      let query = new PaginatorQuery();
+      query.page = this.articlesPaginator.pageIndex + 1;
+      query.pageSize = this.articlesPaginator.pageSize;
+      this.userArticlesDataSource.loadArticlePreviews(this.userId, query);
+    }
   }
 
 }

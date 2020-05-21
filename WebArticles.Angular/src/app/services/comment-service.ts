@@ -1,11 +1,10 @@
 import { Injectable } from "@angular/core";
+
+import { Comment } from "../data-model/models/comment";
 import { HttpClient, HttpParams } from "@angular/common/http";
-import { PaginatorQuery } from "../data-model/dto/paginator-query.dto";
-import { PaginatorAnswer } from "../data-model/dto/paginator-answer.dto";
-import { Comment } from "../data-model/models/comment.model";
-import { UpdateAnswer } from "../data-model/dto/update-answer.dto";
-import { CreateAnswer } from "../data-model/dto/create-answer.dto";
-import { CommentCreate } from "../data-model/dto/comment-create.dto";
+import { PaginatorAnswer } from "../data-model/infrastructure/models/paginator-answer";
+import { PaginatorQuery } from "../data-model/infrastructure/models/paginator-query";
+import { CommentCreate } from "../data-model/models/comment-create";
 
 @Injectable()
 export class CommentService {
@@ -13,25 +12,23 @@ export class CommentService {
     constructor(private http: HttpClient) { }
 
     getCommentsPage(articleId: number, query: PaginatorQuery) {
-        let params = new HttpParams({fromObject: query as any});
-        return this.http.get<PaginatorAnswer<Comment>>(`api/comments/${articleId}`, { params: params });
+        return this.http.post<PaginatorAnswer<Comment>>(`api/comments/article/${articleId}`, query);
     }
 
     getCommentsPageByUserId(userId: number, query: PaginatorQuery) {
-        let params = new HttpParams({fromObject: query as any});
-        return this.http.get<PaginatorAnswer<Comment>>(`api/comments/user/${userId}`, { params: params });
+        return this.http.post<PaginatorAnswer<Comment>>(`api/comments/user/${userId}`, query);
     }
 
     updateComment(commentId: number, newContent: string) {
-        return this.http.put<UpdateAnswer>(`api/comments`, { id: commentId, newContent: newContent });
+        return this.http.put(`api/comments`, { id: commentId, newContent: newContent });
     }
 
     deleteComment(commentId: number) {
-        return this.http.delete<UpdateAnswer>(`api/comments/${commentId}`);
+        return this.http.delete(`api/comments/${commentId}`);
     }
 
     createComment(createComment: CommentCreate) {
-        return this.http.post<CreateAnswer>(`api/comments`, createComment);
+        return this.http.post<number>(`api/comments`, createComment);
     }
 
     updateCommentRating(commentId: number, newRating: number) {

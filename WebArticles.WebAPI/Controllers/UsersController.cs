@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using WebArticles.WebAPI.Data.Dto;
-using WebArticles.WebAPI.Data.Models;
+using WebArticles.WebAPI.Data.Dtos;
+using WebArticles.WebAPI.Infrastructure.Models;
 using WebArticles.WebAPI.Data.Services;
+using System.Security.Claims;
 
 namespace WebArticles.WebAPI.Controllers
 {
@@ -22,7 +22,7 @@ namespace WebArticles.WebAPI.Controllers
 
         [AllowAnonymous]
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetUser([FromRoute] long id)
+        public async Task<IActionResult> GetUser(long id)
         {
             var user = await _userService.GetUserModelById(id);
             if (user != null)
@@ -32,28 +32,26 @@ namespace WebArticles.WebAPI.Controllers
         }
 
         [HttpPut]
-        public async Task<ActionResult<UpdateAnswer>> UpdateUser([FromBody] UserModel userModel)
+        public async Task<IActionResult> UpdateUser([FromBody] UserUpdateDto userModel)
         {
-            var result = await _userService.UpdateUser(userModel);
-            if (result.Succeeded)
-                return Accepted(result);
-            else
-                return BadRequest(result);
+            await _userService.UpdateUser(userModel);
+            return NoContent();
 
         }
 
-        [HttpGet("article/{articleId}")]
-        public async Task<ActionResult<long>> GetUserIdByArticleId([FromRoute] long articleId)
+        [HttpGet("my/article/{articleId}")]
+        public async Task<ActionResult<long>> GetUserArticlesId(long articleId)
         {
-            var result = await _userService.GetUserIdByArticleId(articleId);
-            if (result != null)
+            var result = await _userService.GetUserArticlesId(articleId);
+            var loggedUserId = long.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            if (result != null && loggedUserId == result.Id)
                 return Ok(result.Id);
             else
                 return NotFound();
         }
 
         [HttpGet("{id}/pick")]
-        public async Task<IActionResult> GetProfilePickLink([FromRoute] long id)
+        public async Task<IActionResult> GetProfilePickLink(long id)
         {
             var result = await _userService.GetProfilePickLink(id);
             if (result != null)
@@ -63,18 +61,15 @@ namespace WebArticles.WebAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<UpdateAnswer>> DeleteArticle([FromRoute] long id)
+        public async Task<IActionResult> DeleteUser(long id)
         {
-            var result = await _userService.DeleteUser(id);
-            if (result.Succeeded)
-                return Ok(result);
-            else
-                return BadRequest(result);
+            await _userService.DeleteUser(id);
+            return NoContent();
         }
 
-        [HttpGet]
+        [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<PaginatorAnswer<UserRow>>> GetUserRowsPage([FromQuery] PaginatorQuery query) {
+        public async Task<ActionResult<PaginatorAnswer<UserRowDto>>> GetUserRowsPage([FromBody] PaginatorQuery query) {
             return Ok(await _userService.GetPage(query));
         }
     }

@@ -1,13 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using WebArticles.WebAPI.Data.Dto;
-using WebArticles.WebAPI.Data.Models;
+using WebArticles.WebAPI.Data.Dtos;
 using WebArticles.WebAPI.Data.Services;
+using WebArticles.WebAPI.Infrastructure.Models;
 
 namespace WebArticles.WebAPI.Controllers
 {
@@ -23,61 +19,44 @@ namespace WebArticles.WebAPI.Controllers
             this._commentService = commentService;
         }
 
-        [HttpGet("{articleId}")]
+        [HttpPost("article/{articleId}")]
         [AllowAnonymous]
-        public async Task<ActionResult<PaginatorAnswer<CommentModel>>> GetPage([FromRoute] long articleId, [FromQuery] PaginatorQuery query)
+        public async Task<ActionResult<PaginatorAnswer<CommentDto>>> GetArtcleCommentsPage([FromRoute] long articleId, [FromBody] PaginatorQuery query)
         {
-            try
-            {
-                return await _commentService.GetPage(articleId, query);
-            } catch (Exception e)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error loading articles");
-            }
+            return await _commentService.GetArticleCommentsPage(articleId, query);
         }
 
-        [HttpGet("user/{userId}")]
+        [HttpPost("user/{userId}")]
         [AllowAnonymous]
-        public async Task<ActionResult<PaginatorAnswer<CommentModel>>> GetPageByUserId([FromRoute] long userId, [FromQuery] PaginatorQuery query)
+        public async Task<ActionResult<PaginatorAnswer<CommentDto>>> GetUserCommentsPage([FromRoute] long userId, [FromBody] PaginatorQuery query)
         {
-            try
-            {
-                return await _commentService.GetPageByUserId(userId, query);
-            } catch (Exception e)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error loading articles");
-            }
+            return await _commentService.GetUserCommentsPage(userId, query);
         }
 
-        // Replace with patch
         [HttpPut]
-        public async Task<ActionResult<UpdateAnswer>> UpdateComment([FromBody] CommentUpdate commentUpdate)
+        public async Task<IActionResult> UpdateComment([FromBody] CommentUpdateDto commentUpdate)
         {
-            return await _commentService.UpdateComment(commentUpdate);
+           await _commentService.UpdateComment(commentUpdate);
+           return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<UpdateAnswer>> UpdateComment([FromRoute] long id)
+        public async Task<IActionResult> DeleteComment(long id)
         {
-            var result = await _commentService.DeleteComment(id);
-            if (result.Succeeded)
-                return Ok(result);
-            else
-                return BadRequest(result);
+            await _commentService.DeleteComment(id);
+            return NoContent();
         }
 
+
         [HttpPost]
-        public async Task<ActionResult<CreateAnswer>> CreateComment([FromBody] CommentCreate commentCreate)
+        public async Task<IActionResult> CreateComment([FromBody] CommentCreateDto commentCreate)
         {
-            var result = await _commentService.CreateComment(commentCreate);
-            if (result.Succeeded)
-                return Ok(result);
-            else
-                return BadRequest(result);
+            var id = await _commentService.CreateComment(commentCreate);
+            return Ok(id);
         }
 
         [HttpPut("rating")]
-        public async Task<ActionResult<int>> UpdateCommentRating(RatingUpdate ratingUpdate)
+        public async Task<ActionResult<int>> UpdateCommentRating(RatingUpdateDto ratingUpdate)
         {
             return await _commentService.UpdateRating(ratingUpdate.Id, ratingUpdate.Rating);
         }

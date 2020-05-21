@@ -1,157 +1,77 @@
 ﻿using AutoMapper;
 using DataModel.Data.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
 using System.Threading.Tasks;
-using WebAPI.Data.Repositories;
-using WebAPI.Infrastructure;
-using WebArticles.WebAPI.Data.Dto;
-using WebArticles.WebAPI.Data.Models;
+using WebArticles.WebAPI.Data.Dtos;
+using WebArticles.WebAPI.Data.Repositories.Implementations;
+using WebArticles.WebAPI.Infrastructure.Models;
 
 namespace WebArticles.WebAPI.Data.Services
 {
     
     public class ArticleService
     {
-        private readonly IRepository _repository;
+        private readonly ArticleRepository _repository;
+        private readonly UserRepository _userRepository;
         private readonly IMapper _mapper;
 
-        public ArticleService(IRepository repository, IMapper mapper)
+        public ArticleService(ArticleRepository repository, UserRepository userRepository, IMapper mapper)
         {
             _repository = repository;
+            _userRepository = userRepository;
             _mapper = mapper;
         }
 
-        public async Task<ArticleModel> GetArticleById(long id)
+        public async Task<ArticleDto> GetArticleById(long id)
         {
-            IQueryable<Article> query = _repository.GetAll<Article>();
+            var article = await _repository.GetById(id, a => a.Topic, a => a.Writer, a => a.Writer.User);
 
-            query = query.Include(a => a.Topic)
-                            .Include(a => a.Writer)
-                            .ThenInclude(w => w.User);
-
-            return _mapper.Map<ArticleModel>(await query.FirstOrDefaultAsync(a => a.Id == id));
+            return _mapper.Map<ArticleDto>(article);
         }
 
-
-        public async Task<PaginatorAnswer<ArticlePreview>> GetPage(PaginatorQuery queryDto)
+        public async Task<PaginatorAnswer<ArticlePreviewDto>> GetArticlesPage(PaginatorQuery paginatorQuery)
         {
-            IQueryable<Article> query = _repository.GetAll<Article>();
-
-            query = query.Include(a => a.Topic)
-                         .Include(a => a.Writer)
-                            .ThenInclude(w => w.User);
-
-            // search string
-            if (!string.IsNullOrEmpty(queryDto.Search) && !string.IsNullOrWhiteSpace(queryDto.Search))
-            {
-                query = query.Where(a => a.Title.Contains(queryDto.Search));
-            }
-
-            // sorting
-            bool desc = queryDto.SortDirection == "desc";
-            switch (queryDto.SortBy)
-            {
-                case "publichDate": query = desc ? query.OrderByDescending(a => a.PublichDate) : query.OrderBy(a => a.PublichDate); break;
-                case "rating": query = desc ? query.OrderByDescending(a => a.Rating) : query.OrderBy(a => a.Rating); break;
-                case "title": query = desc ? query.OrderByDescending(a => a.Title) : query.OrderBy(a => a.Title); break;
-                default: query = desc ? query.OrderByDescending(a => a.Id) : query.OrderBy(a => a.Id); break;
-            }
-
-            // filtering and returning results
-            if (!queryDto.Filters.IsEmpty)
-            {
-               
-                Article[] filtered = await query.FilterAsync(queryDto.Filters);
-                return new PaginatorAnswer<ArticlePreview> { Total = filtered.Count(), Items = await filtered.AsQueryable().GetPage(queryDto.Page,10).MapWithAsync<ArticlePreview, Article>(_mapper) };
-            }
-            else
-                return new PaginatorAnswer<ArticlePreview> { Total = await query.CountAsync(), Items = await query.GetPage(queryDto.Page, 10).MapWithAsync<ArticlePreview, Article>(_mapper) };
+            return await _repository.GetPage<ArticlePreviewDto>(paginatorQuery, a => a.Topic, a => a.Writer, a => a.Writer.User);
         }
 
         
-        public async Task<PaginatorAnswer<ArticlePreview>> GetPageByUserId(long id, int page)
+        public async Task<PaginatorAnswer<ArticlePreviewDto>> GetUserArticlesPage(long userId, PaginatorQuery paginatorQuery)
         {
-            IQueryable<Article> query = _repository.GetAll<Article>().Include(a => a.Topic)
-                                                                     .Include(a => a.Writer)
-                                                                        .ThenInclude(w => w.User);
-
-            query = query.Where(a => a.Writer.UserId == id);
-
-            return new PaginatorAnswer<ArticlePreview> { Total = await query.CountAsync(), Items = await query.GetPage(page, 5).MapWithAsync<ArticlePreview, Article>(_mapper) };
+            return await _repository.GetUserArticlesPage<ArticlePreviewDto>(userId, paginatorQuery, a => a.Topic, a => a.Writer, a => a.Writer.User);
         }
 
-        public async Task<UpdateAnswer> UpdateArticle(ArticleModel model)
+        public async Task UpdateArticle(ArticleUpdateDto updateDto)
         {
+            var initialArticle = await _repository.GetById(updateDto.Id, a => a.Topic, a => a.Writer, a => a.Writer.User);
+            var updatedArticle = _mapper.Map(updateDto, initialArticle);
 
-            IQueryable<Article> query = _repository.GetAll<Article>();
-
-            query = query.AsNoTracking()
-                            .Include(a => a.Topic)
-                            .Include(a => a.Writer)
-                                .ThenInclude(w => w.User);
-
-            var initialArticle = await query.FirstOrDefaultAsync(a => a.Id == model.Id);
-
-            var updatedArticle = _mapper.Map(model, initialArticle);
-
-            try
-            {
-                _repository.Update(updatedArticle);
-                _repository.SaveChanges();
-
-                return new UpdateAnswer { Succeeded = true };
-            } catch (Exception e)
-            {
-                return new UpdateAnswer { Succeeded = false, Error = e.Message };
-            }
+            await _repository.Update(updatedArticle);
         }
 
-        public async Task<CreateAnswer> CreateArticle(ArticleCreate articleCreate)
+        public async Task<long> CreateArticle(ArticleCreateDto articleCreate)
         {
-            try
-            {
-                var article = _mapper.Map<Article>(articleCreate);
+            var article = _mapper.Map<Article>(articleCreate);
 
-                article.WriterId = (await _repository.GetAll<User>()
-                                            .Include(u => u.Writer)
-                                            .FirstOrDefaultAsync(u => u.Id == article.WriterId)).Writer.Id;
+            var user = await _userRepository.GetById(articleCreate.UserId, u => u.Writer);
+            article.WriterId =  user.Writer.Id;
 
-                _repository.Insert(article);
-                _repository.SaveChanges();
-                return new CreateAnswer { Succeeded = true, Id = article.Id };
-            } catch (Exception e)
-            {
-                return new CreateAnswer { Succeeded = false, Error = e.Message };
-            }
-            
+            await _repository.Insert(article);
+            return article.Id;
         }
 
         public async Task<int> UpdateRating(long id, int rating)
         {
-            var article = await _repository.GetAll<Article>().FirstOrDefaultAsync(a => a.Id == id);
+            var article = await _repository.GetById(id);
 
             article.Rating = rating;
-            _repository.Update(article);
-            _repository.SaveChanges();
+            await _repository.Update(article);
 
             return article.Rating;
         }
         
-        public async Task<UpdateAnswer> DeleteArticle(long id)
+        public async Task DeleteArticle(long id)
         {
-            try
-            {
-                var article = await _repository.GetAll<Article>().FirstOrDefaultAsync(a => a.Id == id);
-
-                _repository.Delete(article);
-                _repository.SaveChanges();
-                return new UpdateAnswer { Succeeded = true };
-            } catch (Exception e)
-            {
-                return new UpdateAnswer { Succeeded = false, Error = "Faild to delete article" };
-            }
+            await _repository.Delete(id);
         }
     }
 }

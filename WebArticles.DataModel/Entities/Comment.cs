@@ -18,7 +18,7 @@ namespace DataModel.Data.Entities
 
         public long? AnsweredCommentId { get; set; }
 
-        public DateTime PublichDate { get; set; }
+        public DateTime PublishDate { get; set; }
 
         public Reviewer Reviewer { get; set; }
 

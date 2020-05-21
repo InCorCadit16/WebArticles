@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using DataModel.Data.Entities;
-using WebArticles.WebAPI.Data.Models;
+using WebArticles.WebAPI.Data.Dtos;
 
 namespace WebArticles.WebAPI.Data.Profiles
 {
@@ -8,7 +8,7 @@ namespace WebArticles.WebAPI.Data.Profiles
     {
         public CommentProfile()
         {
-            this.CreateMap<Comment, CommentModel>()
+            this.CreateMap<Comment, CommentDto>()
                 .ForMember(cm => cm.UserId, mapper => mapper.MapFrom(c => c.Reviewer.UserId))
                 .ForMember(cm => cm.ArticleId, mapper => mapper.MapFrom(c => c.ArticleId))
                 .ForMember(cm => cm.ArticleTitle, mapper => mapper.MapFrom(c => c.Article.Title))

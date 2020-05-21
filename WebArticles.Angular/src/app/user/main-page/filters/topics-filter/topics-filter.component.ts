@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
 import { Observable } from 'rxjs';
 import { MatSelectionList } from '@angular/material/list';
-import { Topic } from 'src/app/data-model/models/topic.model';
+import { Topic } from 'src/app/data-model/models/topic';
 
 
 @Component({

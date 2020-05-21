@@ -1,14 +1,11 @@
 import { HttpClient, HttpParams, HttpResponse } from "@angular/common/http";
 
 import { Injectable } from "@angular/core";
-import { PaginatorQuery } from "../data-model/dto/paginator-query.dto";
-import { PaginatorAnswer } from "../data-model/dto/paginator-answer.dto";
-import { Topic } from "../data-model/models/topic.model";
-import { Article } from "../data-model/models/article.model";
-import { UpdateAnswer } from "../data-model/dto/update-answer.dto";
-import { ArticleCreate } from "../data-model/dto/article-create.dto";
-import { CreateAnswer } from "../data-model/dto/create-answer.dto";
-import { ArticlePreview } from "../data-model/models/article-preview.model";
+import { ArticleCreate } from "../data-model/models/article-create";
+import { ArticlePreview } from "../data-model/models/article-preview";
+import { Article } from "../data-model/models/article";
+import { PaginatorAnswer } from "../data-model/infrastructure/models/paginator-answer";
+import { PaginatorQuery } from "../data-model/infrastructure/models/paginator-query";
 
 @Injectable()
 export class ArticleService {
@@ -16,19 +13,12 @@ export class ArticleService {
     constructor(private http: HttpClient) { }
 
     getArticlePreviewes(query: PaginatorQuery) {
-        let params = query.filters? new HttpParams({fromObject: query.filters as any}) : new HttpParams();
-        params = params.set('search', query.search)
-                        .set('page', query.page.toString())
-                        .set('sortBy', query.sortBy)
-                        .set('sortDirection',query.sortDirection);
-
-        return this.http.get<PaginatorAnswer<ArticlePreview>>("api/articles", { params: params })
+        return this.http.post<PaginatorAnswer<ArticlePreview>>("api/articles/paginator", query)
     }
 
 
-    getArticlesByUserId(id: number, page: number) {
-        let params = new HttpParams().append("page", page.toString());
-        return this.http.get<PaginatorAnswer<ArticlePreview>>(`api/articles/user/${id}`,{params: params});
+    getArticlesByUserId(id: number, query: PaginatorQuery) {
+        return this.http.post<PaginatorAnswer<ArticlePreview>>(`api/articles/user/${id}`, query);
     }
 
 
@@ -37,11 +27,11 @@ export class ArticleService {
     }
 
     updateArticle(article: Article) {
-        return this.http.put<UpdateAnswer>('api/articles', article);
+        return this.http.put('api/articles', article);
     }
 
     createArticle(createArticle: ArticleCreate) {
-        return this.http.post<CreateAnswer>('api/articles', createArticle);
+        return this.http.post<number>('api/articles', createArticle);
     }
 
     updateArticleRating(articleId: number, newRating: number) {
@@ -49,7 +39,7 @@ export class ArticleService {
     }
 
     deleteArticle(id: number) {
-        return this.http.delete<UpdateAnswer>(`api/articles/${id}`);
+        return this.http.delete(`api/articles/${id}`);
     }
 
 }

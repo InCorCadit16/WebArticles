@@ -1,10 +1,10 @@
 import { Component, OnInit, AfterContentInit, ViewChild } from '@angular/core';
 import { UsersDataSource } from 'src/app/data-model/data-sources/user.data-source';
 import { UserService } from 'src/app/services/user-service';
-import { PaginatorQuery } from 'src/app/data-model/dto/paginator-query.dto';
 import { MatPaginator } from '@angular/material';
 import { tap } from 'rxjs/internal/operators/tap';
 import { LoginService } from 'src/app/services/login-service';
+import { PaginatorQuery } from 'src/app/data-model/infrastructure/models/paginator-query';
 
 @Component({
   selector: 'admin-users-table',

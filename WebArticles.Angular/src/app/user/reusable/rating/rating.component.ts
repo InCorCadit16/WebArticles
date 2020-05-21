@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { ArticleService } from 'src/app/services/article-service';
 import { CommentService } from 'src/app/services/comment-service';
-import { Article } from 'src/app/data-model/models/article.model';
+import { Article } from 'src/app/data-model/models/article';
 
 @Component({
   selector: 'app-rating',

@@ -1,10 +1,7 @@
 ﻿using AutoMapper;
 using DataModel.Data.Entities;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using WebArticles.WebAPI.Data.Models;
+using WebArticles.WebAPI.Data.Dtos;
 
 namespace WebArticles.WebAPI.Data.Profiles
 {
@@ -12,7 +9,7 @@ namespace WebArticles.WebAPI.Data.Profiles
     {
         public UserRowProfile()
         {
-            this.CreateMap<User, UserRow>()
+            this.CreateMap<User, UserRowDto>()
                 .ForMember(ur => ur.Articles, mapper => mapper.MapFrom(u => u.Writer.Articles.Count()))
                 .ForMember(ur => ur.WriterRating, mapper => mapper.MapFrom(u => u.Writer.WriterRating))
                 .ForMember(ur => ur.Reviewes, mapper => mapper.MapFrom(u => u.Reviewer.Comments.Count()))

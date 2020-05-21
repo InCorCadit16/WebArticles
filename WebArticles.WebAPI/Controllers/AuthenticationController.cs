@@ -1,19 +1,11 @@
-﻿using DataModel.Data.Entities;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Security.Claims;
+using Microsoft.Extensions.Primitives;
 using System.Threading.Tasks;
-using WebArticles.WebAPI.Data.Dto;
+using WebArticles.WebAPI.Data.Dtos;
 using WebArticles.WebAPI.Data.Services;
-using WebArticles.WebAPI.Infrastructure;
 
 namespace WebArticles.WebAPI.Controllers
 {
@@ -22,43 +14,47 @@ namespace WebArticles.WebAPI.Controllers
     [AllowAnonymous]
     public class AuthenticationController : ControllerBase
     {
-        private readonly AuthenticationService _authenticationService;
+        private readonly Data.Services.AuthenticationService _authenticationService;
 
-        public AuthenticationController(AuthenticationService authenticationService)
+        public AuthenticationController(Data.Services.AuthenticationService authenticationService)
         {
             this._authenticationService = authenticationService;
         }
 
        
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] UserLoginQuery userLoginDto)
+        public async Task<IActionResult> Login([FromBody] UserLoginQueryDto userLoginDto)
         {
             var result = await _authenticationService.Login(userLoginDto);
-            if (result.ErrorMessage == null)
-                return Ok(result);
-            else
-                return Unauthorized(result);
+            return Ok(result);
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] UserRegisterQuery userRegisterDto)
+        public async Task<IActionResult> Register([FromBody] UserRegisterQueryDto userRegisterDto)
         {
             var result = await _authenticationService.Register(userRegisterDto);
-            if (result.ErrorMessage == null)
-                return Created($"api/users/{result.User.Id}", result);
-            else
-                return BadRequest(result);
-           
+            return Created($"api/users/{result.User.Id}", result);
         }
 
-        [HttpPost("external")]
-        public async Task<IActionResult> LoginExternal([FromBody] ExternalSignInQuery query)
+        
+        [HttpPost("google")]
+        public IActionResult SignInWithGoogle()
         {
-            var result = await _authenticationService.LoginExternal(query);
-            if (result.ErrorMessage == null)
-                return Ok(result);
-            else
-                return Unauthorized(result);
+            var authenticationProperties = _authenticationService.ConfigureProperties(Url, nameof(HandleExternalLogin));
+            HttpContext.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+            HttpContext.Response.Headers.Add("Access-Control-Max-Age", "1000");
+            HttpContext.Response.Headers.Add("Access-Control-Allow-Headers", "X-Requested-With, Content-Type, Origin, Authorization");
+            HttpContext.Response.Headers.Add("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, OPTIONS");
+            HttpContext.Response.Headers.Add("Access-Control-Allow-Credentials", "true");
+            HttpContext.Response.Headers.Add("Content-Length", "0");
+            return Challenge(authenticationProperties, "Google");
+        }
+
+        public async Task<IActionResult> HandleExternalLogin()
+        {
+            await _authenticationService.HandleExternalLogin();
+            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+            return Redirect("http://localhost:4200/main");
         }
     }
 }

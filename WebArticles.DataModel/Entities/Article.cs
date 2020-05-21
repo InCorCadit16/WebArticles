@@ -26,7 +26,7 @@ namespace DataModel.Data.Entities
 
         public long WriterId { get; set; }
 
-        public DateTime PublichDate { get; set; }
+        public DateTime PublishDate { get; set; }
         
         public Writer Writer { get; set; }
 

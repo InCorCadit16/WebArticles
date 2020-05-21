@@ -1,122 +1,69 @@
 ﻿using AutoMapper;
 using DataModel.Data.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WebAPI.Data.Repositories;
+using WebAPI.Data.Repositories.Interfaces;
 using WebAPI.Infrastructure;
-using WebArticles.WebAPI.Data.Dto;
-using WebArticles.WebAPI.Data.Models;
+using WebArticles.WebAPI.Data.Dtos;
+using WebArticles.WebAPI.Data.Repositories.Implementations;
+using WebArticles.WebAPI.Infrastructure.Models;
 
 namespace WebArticles.WebAPI.Data.Services
 {
     public class CommentService
     {
-        private readonly IRepository _repository;
+        private readonly CommentRepository _repository;
+        private readonly UserRepository _userRepository;
         private readonly IMapper _mapper;
 
-        public CommentService(IRepository repository, IMapper mapper)
+        public CommentService(CommentRepository repository, UserRepository userRepository, IMapper mapper)
         {
             this._repository = repository;
+            this._userRepository = userRepository;
             this._mapper = mapper;
         }
 
-        public async Task<PaginatorAnswer<CommentModel>> GetPage(long articleId, PaginatorQuery paginatorQuery)
+        public async Task<PaginatorAnswer<CommentDto>> GetArticleCommentsPage(long articleId, PaginatorQuery paginatorQuery)
         {
-            IQueryable<Comment> query = _repository.GetAll<Comment>()
-                                                        .Include(c => c.Article)
-                                                        .Include(c => c.Reviewer)
-                                                            .ThenInclude(r => r.User);
-
-            query = query.Where(c => c.ArticleId == articleId);
-
-            // sorting
-            bool desc = paginatorQuery.SortDirection == "desc";
-            switch (paginatorQuery.SortBy)
-            {
-                case "publichDate": query = desc ? query.OrderByDescending(a => a.PublichDate) : query.OrderBy(a => a.PublichDate); break;
-                case "rating": query = desc ? query.OrderByDescending(a => a.Rating) : query.OrderBy(a => a.Rating); break;
-                default: query = desc ? query.OrderByDescending(a => a.Id) : query.OrderBy(a => a.Id); break;
-            }
-
-            return new PaginatorAnswer<CommentModel> { Total = await query.CountAsync(), Items = await query.GetPage(paginatorQuery.Page, paginatorQuery.PageSize).MapWithAsync<CommentModel, Comment>(_mapper) };
+            return await _repository.GetArticlesCommentsPage<CommentDto>(articleId, paginatorQuery, c => c.Reviewer, c => c.Reviewer.User);
         }
 
-        public async Task<PaginatorAnswer<CommentModel>> GetPageByUserId(long userId, PaginatorQuery paginatorQuery)
+        public async Task<PaginatorAnswer<CommentDto>> GetUserCommentsPage(long userId, PaginatorQuery paginatorQuery)
         {
-            IQueryable<Comment> query = _repository.GetAll<Comment>()
-                                                        .Include(c => c.Article)
-                                                        .Include(c => c.Reviewer)
-                                                            .ThenInclude(r => r.User);
-
-            query = query.Where(c => c.Reviewer.UserId == userId);
-
-            return new PaginatorAnswer<CommentModel> { Total = await query.CountAsync(), Items = await query.GetPage(paginatorQuery.Page, paginatorQuery.PageSize).MapWithAsync<CommentModel, Comment>(_mapper) };
+            return await _repository.GetUserCommentsPage<CommentDto>(userId, paginatorQuery, c => c.Reviewer, c => c.Reviewer.User);
         }
 
-        public async Task<UpdateAnswer> UpdateComment(CommentUpdate commentUpdate)
+        public async Task UpdateComment(CommentUpdateDto commentUpdate)
         {
-            try
-            {
-                var comment = await _repository.GetAll<Comment>().FirstOrDefaultAsync(c => c.Id == commentUpdate.Id);
+            var comment = await _repository.GetById(commentUpdate.Id);
 
-                comment.Content = commentUpdate.NewContent;
-                _repository.Update(comment);
-                _repository.SaveChanges();
-
-                return new UpdateAnswer { Succeeded = true };
-            } catch (Exception e)
-            {
-                return new UpdateAnswer { Succeeded = false, Error = "Comment not found" };
-            }
+            comment.Content = commentUpdate.NewContent;
+            await _repository.Update(comment);
         }
 
-        public async Task<UpdateAnswer> DeleteComment(long id)
+        public async Task DeleteComment(long id)
         {
-            try
-            {
-                var comment = await _repository.GetAll<Comment>().FirstOrDefaultAsync(c => c.Id == id);
-
-                _repository.Delete(comment);
-                _repository.SaveChanges();
-
-                return new UpdateAnswer { Succeeded = true };
-            }
-            catch (Exception e)
-            {
-                return new UpdateAnswer { Succeeded = false, Error = "Comment not found" };
-            }
+            await _repository.Delete(id);
         }
 
-        public async Task<CreateAnswer> CreateComment(CommentCreate commentCreate)
+        public async Task<long> CreateComment(CommentCreateDto commentCreate)
         {
-            try
-            {
-                long reviewerId = (await _repository.GetAll<Reviewer>().FirstOrDefaultAsync(r => r.UserId == commentCreate.UserId)).Id;
-                commentCreate.ReviewerId = reviewerId;
+            var user = await _userRepository.GetById(commentCreate.UserId, u => u.Reviewer);
+            commentCreate.ReviewerId = user.Reviewer.Id;
 
-                var comment = _mapper.Map<Comment>(commentCreate);
+            var comment = _mapper.Map<Comment>(commentCreate);
 
-                _repository.Insert(comment);
-                _repository.SaveChanges();
-
-                return new CreateAnswer { Succeeded = true, Id = comment.Id };
-            }
-            catch (Exception e)
-            {
-                return new CreateAnswer { Succeeded = false, Error = "Failed to create a comment" };
-            }
+            await _repository.Insert(comment);
+            return comment.Id;
         }
 
         public async Task<int> UpdateRating(long id, int rating)
         {
-            var comment = await _repository.GetAll<Comment>().FirstOrDefaultAsync(c => c.Id == id);
+            var comment = await _repository.GetById(id);
 
             comment.Rating = rating;
-            _repository.Update(comment);
-            _repository.SaveChanges();
+            await _repository.Update(comment);
 
             return comment.Rating;
         }

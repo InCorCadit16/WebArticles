@@ -1,29 +1,39 @@
 ﻿using AutoMapper;
 using DataModel.Data.Entities;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WebAPI.Data.Repositories;
+using WebAPI.Data.Repositories.Interfaces;
 using WebAPI.Infrastructure;
-using WebArticles.WebAPI.Data.Dto;
-using WebArticles.WebAPI.Data.Models;
+using WebArticles.WebAPI.Data.Dtos;
+using WebArticles.WebAPI.Data.Repositories.Implementations;
+using WebArticles.WebAPI.Infrastructure.Exceptions;
+using WebArticles.WebAPI.Infrastructure.Models;
 
 namespace WebArticles.WebAPI.Data.Services
 {
     public class UserService
     {
-        private readonly IRepository _repository;
+        private readonly UserRepository _repository;
+        private readonly ArticleRepository _articleRepository;
+        private readonly IRepository<Reviewer> _reviewerRepository;
+        private readonly IRepository<Writer> _writerRepository;
         private readonly IMapper _mapper;
         private readonly UserManager<User> _userManager;
 
-        public UserService(IRepository repository, IMapper mapper, UserManager<User> userManager)
+        public UserService(UserRepository repository,
+                            ArticleRepository articleRepository,
+                            IRepository<Reviewer> reviewerRepository,
+                            IRepository<Writer> writerRepository,
+                            IMapper mapper,
+                            UserManager<User> userManager)
         {
             this._repository = repository;
+            this._writerRepository = writerRepository;
+            this._reviewerRepository = reviewerRepository;
+            this._articleRepository = articleRepository;
             this._mapper = mapper;
             this._userManager = userManager;
         }
@@ -31,34 +41,19 @@ namespace WebArticles.WebAPI.Data.Services
 
         public async Task<User> GetUserByUserName(string userName)
         {
-            return await _repository.GetAll<User>().FirstAsync(u => u.UserName == userName);
+            return await _repository.GetUserByUserName(userName);
         }
         public async Task<User> GetUserById(long id)
         {
-            var query = _repository.GetAll<User>();
-
-
-            query = query.Include(u => u.Writer)
-                            .ThenInclude(w => w.TopicsLink)
-                            .ThenInclude(wt => wt.Topic)
-                          .Include(u => u.Writer)
-                            .ThenInclude(w => w.Articles);
-
-            query = query.Include(u => u.Reviewer)
-                            .ThenInclude(r => r.TopicsLink)
-                            .ThenInclude(rt => rt.Topic)
-                          .Include(u => u.Reviewer)
-                            .ThenInclude(w => w.Comments);
-
-            return await query.FirstOrDefaultAsync(u => u.Id == id);
+            return await _repository.GetUserWithAllProperties(id);
         }
 
-        public async Task<UserModel> GetUserModelById(long id)
+        public async Task<UserDto> GetUserModelById(long id)
         {
-            return _mapper.Map<UserModel>(await GetUserById(id));
+            return _mapper.Map<UserDto>(await GetUserById(id));
         }
 
-        public void CreateWriterAndReviewer(User user)
+        public async Task CreateWriterAndReviewer(User user)
         {
             var reviewer = new Reviewer() { UserId = user.Id, User = user };
             var writer = new Writer() { UserId = user.Id, User = user };
@@ -66,122 +61,59 @@ namespace WebArticles.WebAPI.Data.Services
             user.Reviewer = reviewer;
             user.Writer = writer;
 
-            _repository.Insert(reviewer);
-            _repository.Insert(writer);
-            _repository.SaveChanges();
-            _repository.Update(user);
-            _repository.SaveChanges();
+            await _reviewerRepository.Insert(reviewer);
+            await _writerRepository.Insert(writer);
+
+            await _repository.Update(user);
         }
 
-        public async Task<User> GetUserIdByArticleId(long articleId)
+        public async Task<User> GetUserArticlesId(long articleId)
         {
-            var query = _repository.GetAll<User>();
+            var article = await _articleRepository.GetById(articleId, a => a.Writer, article => article.Writer.User);
 
-            query = query.Include(u => u.Writer)
-                            .ThenInclude(w => w.Articles);
-
-            return await query.FirstOrDefaultAsync(u => u.Writer.Articles.Any(a => a.Id == articleId));
+            return article.Writer.User;
         }
 
         public async Task<string> GetProfilePickLink(long id)
         {
-            try
-            {
-                var query = _repository.GetAll<User>();
+                var user = await _repository.GetById(id);
 
-                return (await query.FirstOrDefaultAsync(u => u.Id == id)).ProfilePickLink;
-            } catch(NullReferenceException e)
-            {
-                return null;
-            }
+                return user.ProfilePickLink;
         }
 
-        public async Task<UpdateAnswer> UpdateUser(UserModel userModel)
+        public async Task UpdateUser(UserUpdateDto userUpdateDto)
         {
-            try
+            var user = await GetUserById(userUpdateDto.Id);
+
+            if (userUpdateDto.Email != user.Email)
             {
-
-                var initialUser = await GetUserById(userModel.Id);
-                var updatedUser = _mapper.Map(userModel, initialUser);
-
-                if (updatedUser.Provider != null && initialUser.Email != updatedUser.Email)
+                if (_repository.GetUserByEmail(userUpdateDto.Email) != null)
                 {
-                    return new UpdateAnswer { Succeeded = false, Error = @"You can't update email if you are logged in with external provider" };
+                    throw new FormInvalidException("", $"Email {userUpdateDto.Email} is already taken");
                 }
+            }
+            
+            user = _mapper.Map(userUpdateDto, user);
 
-                var result = await _userManager.UpdateAsync(updatedUser);
-
-                if (result.Succeeded)
-                    return new UpdateAnswer { Succeeded = true };
-                else
-                    return new UpdateAnswer { Succeeded = false, Error = result.Errors.Select(e => e.Description).Aggregate((e, i) => i += e + "\n") };
-            }
-            catch (DbUpdateException e)
-            {
-                return new UpdateAnswer { Succeeded = false, Error = $"Email \'{userModel.Email}\' is already taken" };
-            }
-            catch (Exception e)
-            {
-                return new UpdateAnswer { Succeeded = false, Error = "An internal server error occured" };
-            }
+            await _repository.Update(user);
         }
 
-        public async Task<UpdateAnswer> DeleteUser(long id)
+        public async Task DeleteUser(long id)
         {
-            try
-            {
-                var user = await _repository.GetAll<User>()
-                                        .Include(u => u.Writer).Include(u => u.Reviewer)
-                                        .FirstOrDefaultAsync(u => u.Id == id);
+            var user = await _repository.GetById(id, u => u.Reviewer, u => u.Writer);
 
-                var result = await _userManager.DeleteAsync(user);
+            var result = await _userManager.DeleteAsync(user);
 
-                if (result.Succeeded)
-                {
-                    _repository.Delete(await _repository.GetAll<Reviewer>().FirstOrDefaultAsync(r => r.Id == user.Reviewer.Id));
-                    _repository.Delete(await _repository.GetAll<Writer>().FirstOrDefaultAsync(r => r.Id == user.Writer.Id));
-                    return new UpdateAnswer { Succeeded = true };
-                }
-                else
-                    return new UpdateAnswer
-                    {
-                        Succeeded = false,
-                        Error = result.Errors.Select(e => e.Description).Aggregate((d, s) => s += d + "\n")
-                    };
-            }
-            catch (Exception e)
+            if (result.Succeeded)
             {
-                return new UpdateAnswer { Succeeded = false, Error = "Failed to delete this profile" };
+                await _reviewerRepository.Delete(user.Reviewer.Id);
+                await _writerRepository.Delete(user.Writer.Id);
             }
         }
 
-        public async Task<PaginatorAnswer<UserRow>> GetPage(PaginatorQuery queryDto)
+        public async Task<PaginatorAnswer<UserRowDto>> GetPage(PaginatorQuery paginatorQuery)
         {
-            IQueryable<User> query = _repository.GetAll<User>();
-
-            query = query.Include(u => u.Writer)
-                             .ThenInclude(w => w.Articles)
-                        .Include(u => u.Reviewer)
-                            .ThenInclude(w => w.Comments);
-
-            // search string
-            /*if (!string.IsNullOrEmpty(queryDto.Search) && !string.IsNullOrWhiteSpace(queryDto.Search))
-            {
-                query = query.Where(a => a.Title.Contains(queryDto.Search));
-            }*/
-
-            query = query.OrderBy(u => u.Id);
-
-            return new PaginatorAnswer<UserRow> {
-                Total = await query.CountAsync(), 
-                Items = await query.GetPage(queryDto.Page, queryDto.PageSize).MapWithAsync<UserRow, User>(_mapper) 
-            };
+            return await _repository.GetPage<UserRowDto>(paginatorQuery, u => u.Reviewer, u => u.Reviewer.Comments, u => u.Writer, u => u.Writer.Articles);
         }
-
-        public async Task<User> GetUserByExternalId(string externalId)
-        {
-            return await _repository.GetAll<User>().FirstOrDefaultAsync(u => u.ExternalId == externalId);
-        }
-
     }
 }

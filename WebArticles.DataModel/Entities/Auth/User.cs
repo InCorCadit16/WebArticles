@@ -34,11 +34,5 @@ namespace DataModel.Data.Entities
 
         public Writer Writer { get; set; }
         public Reviewer Reviewer { get; set; }
-
-
-        // External sign in fields
-        public string ExternalId { get; set; }
-
-        public string Provider { get; set; }
     }
 }

@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { Article } from 'src/app/data-model/models/article.model';
+import { Article } from 'src/app/data-model/models/article';
 import { ArticleService } from 'src/app/services/article-service';
 import { FormBuilder, Validators } from '@angular/forms';
-import { Topic } from 'src/app/data-model/models/topic.model';
+import { Topic } from 'src/app/data-model/models/topic';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material';
 import { AlertDialogComponent } from 'src/app/shared/alert-dialog/alert-dialog.component';

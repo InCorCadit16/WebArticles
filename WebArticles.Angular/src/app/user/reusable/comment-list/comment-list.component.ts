@@ -1,10 +1,10 @@
 import { Component, OnInit, ViewChild, Input, AfterContentInit, ElementRef, OnChanges, SimpleChanges } from '@angular/core';
 import { CommentService } from 'src/app/services/comment-service';
-import { PaginatorQuery } from 'src/app/data-model/dto/paginator-query.dto';
 import { tap } from 'rxjs/operators';
 import { isUndefined } from 'util';
 import { CommentsDataSource } from 'src/app/data-model/data-sources/comments.data-source';
 import { MatPaginator, MatSort } from '@angular/material';
+import { PaginatorQuery } from 'src/app/data-model/infrastructure/models/paginator-query';
 
 @Component({
   selector: 'app-comment-list',
@@ -50,6 +50,7 @@ export class CommentListComponent implements OnInit, AfterContentInit, OnChanges
   ngAfterContentInit() {
     this.dataSource.total.subscribe(len => this.paginator.length = len);
     this.paginator.pageSize = 10;
+    this.paginator.pageSizeOptions = [5, 10, 25];
     this.paginator.page.pipe(
       tap(() => {
         this.loadComments();

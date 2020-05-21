@@ -1,11 +1,11 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, AfterContentInit} from '@angular/core';
+import { Component, OnInit, ViewChild, AfterContentInit} from '@angular/core';
 import { ArticleService } from 'src/app/services/article-service';
 import { ArticleDataSource } from 'src/app/data-model/data-sources/article.data-source';
 import { SearchComponent } from './search/search.component';
-import { MatPaginator, MatTable, MatSort } from '@angular/material';
+import { MatPaginator, MatSort } from '@angular/material';
 import { tap } from 'rxjs/operators';
-import { Filters } from 'src/app/data-model/dto/filters.dto';
-import { PaginatorQuery } from 'src/app/data-model/dto/paginator-query.dto';
+import { PaginatorQuery } from 'src/app/data-model/infrastructure/models/paginator-query';
+import { RequestFilters } from 'src/app/data-model/infrastructure/models/request-filters';
 
 @Component({
   selector: 'app-main-page',
@@ -16,7 +16,7 @@ import { PaginatorQuery } from 'src/app/data-model/dto/paginator-query.dto';
 
 export class MainPageComponent implements OnInit, AfterContentInit {
   dataSource: ArticleDataSource;
-  lastFilters: Filters = null;
+  lastFilters: RequestFilters = null;
   lastSort: { active: string, direction: string} = { active:"id", direction:"asc"};
   lastSearch: string = "";
 
@@ -26,7 +26,7 @@ export class MainPageComponent implements OnInit, AfterContentInit {
 
   constructor(private articlesService: ArticleService) { }
 
-  onApplyFilters(filters: Filters) {
+  onApplyFilters(filters: RequestFilters) {
     this.lastFilters = filters;
     this.loadArticlesPage();
   }
@@ -52,6 +52,7 @@ export class MainPageComponent implements OnInit, AfterContentInit {
 
   ngAfterContentInit() {
     this.dataSource.total.subscribe(len => this.paginator.length = len);
+    this.paginator.pageSizeOptions = [5, 10, 25]
     this.paginator.pageSize = 10;
     this.paginator.page.pipe(
       tap(() => {this.loadArticlesPage(); window.scroll(0,0)})
@@ -61,8 +62,9 @@ export class MainPageComponent implements OnInit, AfterContentInit {
   loadArticlesPage() {
     let query = new PaginatorQuery();
     query.filters = this.lastFilters;
-    query.search = this.lastSearch.toLowerCase();
+    query.searchString = this.lastSearch.toLowerCase();
     query.page = this.paginator.pageIndex + 1;
+    query.pageSize = this.paginator.pageSize;
     query.sortBy = this.lastSort.active;
     query.sortDirection = this.lastSort.direction;
 

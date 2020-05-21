@@ -35,8 +35,6 @@ import { EditArticleComponent } from './user/article/edit-article/edit-article.c
 import { AdminGuard } from './guards/admin.guard';
 import { SharedModule } from './shared/shared.module';
 import { AuthInterceptorProvider } from './providers/auth-interceptor';
-import { SocialLoginModule} from 'angularx-social-login';
-import { provideConfig, ExternalAuthProvider } from './providers/external-auth';
 
 
 
@@ -72,7 +70,6 @@ import { provideConfig, ExternalAuthProvider } from './providers/external-auth';
     HttpClientModule,
     BrowserAnimationsModule,
     AppRoutingModule,
-    SocialLoginModule.initialize(provideConfig()),
   ],
   providers: [
     LoginService,
@@ -81,8 +78,7 @@ import { provideConfig, ExternalAuthProvider } from './providers/external-auth';
     WriterIdGuard,
     AuthGuard,
     AdminGuard,
-    AuthInterceptorProvider,
-    ExternalAuthProvider,
+    AuthInterceptorProvider
   ],
   bootstrap: [AppComponent]
 })

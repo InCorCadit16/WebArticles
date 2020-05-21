@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Topic } from 'src/app/data-model/models/topic.model';
+import { Topic } from 'src/app/data-model/models/topic';
 import { TopicService } from 'src/app/services/topic-service';
 import { MatDialog } from '@angular/material/dialog';
 import { AlertDialogComponent } from 'src/app/shared/alert-dialog/alert-dialog.component';
@@ -10,7 +10,7 @@ import { DeleteDialogComponent } from 'src/app/shared/delete-dialog/delete-dialo
   selector: 'admin-topics-menu',
   templateUrl: './topics-menu.component.html',
   styleUrls: ['./topics-menu.component.css'],
-  providers: [ TopicService ]
+  providers: [TopicService]
 })
 export class TopicsMenuComponent implements OnInit {
   topics: Topic[];
@@ -18,26 +18,34 @@ export class TopicsMenuComponent implements OnInit {
 
 
   constructor(private topicService: TopicService,
-              private dialog: MatDialog) { }
+    private dialog: MatDialog) { }
 
   ngOnInit() {
     this.loadTopics();
   }
 
   onAdd(newTopic: string) {
+    if (newTopic.indexOf(',') > -1) {
+      this.dialog.open(AlertDialogComponent, {
+        width: '40%',
+        data: { title: 'Fail', content: "Unacceptable character ','" }
+      });
+      return;
+    }
+
     this.newTopic = "";
     let topic = new Topic();
     topic.topicName = newTopic;
     this.topicService.addTopic(topic)
-    .subscribe(
-      succeeded => { this.loadTopics(); },
-      failed => {
-        this.dialog.open(AlertDialogComponent, {
-          width: '40%',
-          data: { title: 'Fail', content: failed.error.errorMessage }
-        });
-      }
-    );
+      .subscribe(
+        success => { this.topics.push(success) },
+        error => {
+          this.dialog.open(AlertDialogComponent, {
+            width: '40%',
+            data: { title: 'Fail', content: error.error }
+          });
+        }
+      );
   }
 
   onEdit(topic: Topic) {
@@ -48,20 +56,28 @@ export class TopicsMenuComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(data => {
       if (data) {
+        if (data.indexOf(',') > -1) {
+          this.dialog.open(AlertDialogComponent, {
+            width: '40%',
+            data: { title: 'Fail', content: "Unacceptable character ','" }
+          });
+          return;
+        }
+
         topic.topicName = data;
         this.topicService.updateTopic(topic)
-        .subscribe(
-          succeeded => {
-            let toRep = this.topics.indexOf(this.topics.find(t => t.id === topic.id));
-            this.topics.splice(toRep, 1, topic);
-          },
-          failed => {
-            this.dialog.open(AlertDialogComponent, {
-              width: "40%",
-              data: { title:"Fail", content: failed.error.error }
-            })
-          }
-        )
+          .subscribe(
+            success => {
+              let toRep = this.topics.indexOf(this.topics.find(t => t.id === topic.id));
+              this.topics.splice(toRep, 1, success);
+            },
+            error => {
+              this.dialog.open(AlertDialogComponent, {
+                width: "40%",
+                data: { title: "Fail", content: error.error }
+              })
+            }
+          )
       }
     })
   }
@@ -69,33 +85,33 @@ export class TopicsMenuComponent implements OnInit {
   onDelete(topic: number) {
     const dialogRef = this.dialog.open(DeleteDialogComponent, {
       width: "40%",
-      data: { id: topic, text: "Are you sure you want to delete this topic?"}
+      data: { id: topic, text: "Are you sure you want to delete this topic?" }
     });
 
     dialogRef.afterClosed().subscribe(data => {
       if (data) {
         this.topicService.deleteTopic(data)
-        .subscribe(
-          succeeded => {
-            let toRep = this.topics.indexOf(this.topics.find(t => t.id === topic));
-            this.topics.splice(toRep, 1);
-          },
-          failed => {
-            this.dialog.open(AlertDialogComponent, {
-              width: "40%",
-              data: { title:"Fail", content: failed.error.error }
-            })
-          }
-        )
+          .subscribe(
+            () => {
+              let toRep = this.topics.indexOf(this.topics.find(t => t.id === topic));
+              this.topics.splice(toRep, 1);
+            },
+            error => {
+              this.dialog.open(AlertDialogComponent, {
+                width: "40%",
+                data: { title: "Fail", content: error.error }
+              })
+            }
+          )
       }
     })
   }
 
   loadTopics() {
     this.topicService.getTopics()
-    .subscribe(
-      topics => { this.topics = topics; }
-    );
+      .subscribe(
+        topics => { this.topics = topics; }
+      );
   }
 
 }

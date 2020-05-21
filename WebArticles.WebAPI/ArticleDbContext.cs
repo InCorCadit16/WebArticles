@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using WebArticles.DataModel.Data.DbConfig.Schemas;
 using WebArticles.DataModel.Data.Entities.Auth;
+using System.Configuration;
+using System.Reflection;
 
 namespace WebAPI
 {
@@ -13,11 +15,6 @@ namespace WebAPI
         public DbSet<Article> Articles { get; set; }
         public DbSet<Comment> Comments { get; set; }
 
-        private const string connectionString =
-            @"Data Source = INCORCADIT;
-                Database = WebArticles;
-                Integrated Security = true";
-
         public ArticleDbContext(DbContextOptions<ArticleDbContext> options) : base(options)
         {
 
@@ -25,7 +22,6 @@ namespace WebAPI
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(connectionString);
 
         }
 
@@ -33,15 +29,7 @@ namespace WebAPI
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.ApplyConfiguration(new UserConfig());
-            modelBuilder.ApplyConfiguration(new CommentConfig());
-            modelBuilder.ApplyConfiguration(new ArticleConfig());
-            modelBuilder.ApplyConfiguration(new ReviewerConfig());
-            modelBuilder.ApplyConfiguration(new ReviewerTopicConfig());
-            modelBuilder.ApplyConfiguration(new TopicConfig());
-            modelBuilder.ApplyConfiguration(new RoleConfig());
-            modelBuilder.ApplyConfiguration(new WriterConfig());
-            modelBuilder.ApplyConfiguration(new WriterTopicConfig());
+            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.Load("WebArticles.DataModel"));
 
             ApplyIdentityMapConfiguration(modelBuilder);
         }

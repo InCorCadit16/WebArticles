@@ -2,41 +2,41 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ArticleService } from 'src/app/services/article-service';
 import { FormBuilder, Validators } from '@angular/forms';
-import { Topic } from 'src/app/data-model/models/topic.model';
-import { ArticleCreate } from 'src/app/data-model/dto/article-create.dto';
+import { Topic } from 'src/app/data-model/models/topic';
 import { LoginService } from 'src/app/services/login-service';
 import { MatDialog } from '@angular/material/dialog';
 import { AlertDialogComponent } from 'src/app/shared/alert-dialog/alert-dialog.component';
 import { TopicService } from 'src/app/services/topic-service';
+import { ArticleCreate } from 'src/app/data-model/models/article-create';
 
 @Component({
   selector: 'app-create-article',
   templateUrl: './create-article.component.html',
   styleUrls: ['./create-article.component.css'],
-  providers: [ ArticleService, LoginService, TopicService ]
+  providers: [ArticleService, LoginService, TopicService]
 })
 export class CreateArticleComponent implements OnInit {
   articleCreateModel = this.formBuilder.group({
-    title: ['',[Validators.maxLength(200), Validators.required]],
-    topic: ['',[Validators.required]],
+    title: ['', [Validators.maxLength(200), Validators.required]],
+    topic: ['', [Validators.required]],
     overview: ['', [Validators.maxLength(1000), Validators.required]],
-    content: ['',[Validators.required]],
-    tags: [[],[]],
+    content: ['', [Validators.required]],
+    tags: [[], []],
   });
 
   topics: Topic[];
 
   constructor(private router: Router,
-              private articleService: ArticleService,
-              private topicService: TopicService,
-              private loginService: LoginService,
-              private dialog: MatDialog,
-              private formBuilder: FormBuilder) { }
+    private articleService: ArticleService,
+    private topicService: TopicService,
+    private loginService: LoginService,
+    private dialog: MatDialog,
+    private formBuilder: FormBuilder) { }
 
 
   ngOnInit() {
     this.topicService.getTopics()
-    .subscribe(topics => { this.topics = topics; })
+      .subscribe(topics => { this.topics = topics; })
   }
 
   onTagsUpdated(list: string[]) {
@@ -52,14 +52,14 @@ export class CreateArticleComponent implements OnInit {
     createArticle.userId = this.loginService.getUserId();
 
     this.articleService.createArticle(createArticle)
-    .subscribe(
-      result => { this.router.navigate(['article', result.id]); },
-      response => {
-        this.dialog.open(AlertDialogComponent, {
-          width: '40%',
-          data: { title: 'Fail', content: response.error.error }
+      .subscribe(
+        result => { this.router.navigate(['article', result]); },
+        response => {
+          this.dialog.open(AlertDialogComponent, {
+            width: '40%',
+            data: { title: 'Fail', content: response.error.error }
+          });
         });
-      });
   }
 
   get title() {

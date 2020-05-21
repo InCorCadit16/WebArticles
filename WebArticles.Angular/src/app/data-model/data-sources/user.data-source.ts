@@ -2,9 +2,9 @@ import { DataSource } from "@angular/cdk/table";
 import { BehaviorSubject, Observable, of } from "rxjs";
 import { finalize } from "rxjs/operators";
 import { CollectionViewer} from "@angular/cdk/collections";
-import { UserRow } from "../models/user-row.model";
+import { UserRow } from "../models/user-row";
 import { UserService } from "src/app/services/user-service";
-import { PaginatorQuery } from "../dto/paginator-query.dto";
+import { PaginatorQuery } from "../infrastructure/models/paginator-query";
 
 export class UsersDataSource implements DataSource<UserRow> {
 
@@ -33,6 +33,7 @@ export class UsersDataSource implements DataSource<UserRow> {
             finalize(() => this.loadingUsers.next(false))
         )
         .subscribe(data => {
+            console.log(data.total)
             this.userRows.next(data.items);
             this.total.next(data.total);
         });

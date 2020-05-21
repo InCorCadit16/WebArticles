@@ -1,11 +1,10 @@
 import { Injectable } from "@angular/core";
 import { HttpClient, HttpParams } from "@angular/common/http";
-import { User } from "../data-model/models/user.model";
-import { UpdateAnswer } from "../data-model/dto/update-answer.dto";
-import { PaginatorQuery } from "../data-model/dto/paginator-query.dto";
-import { PaginatorAnswer } from "../data-model/dto/paginator-answer.dto";
-import { UserRow } from "../data-model/models/user-row.model";
+import { User } from "../data-model/models/user";
+import { UserRow } from "../data-model/models/user-row";
 import { LoginService } from "./login-service";
+import { PaginatorAnswer } from "../data-model/infrastructure/models/paginator-answer";
+import { PaginatorQuery } from "../data-model/infrastructure/models/paginator-query";
 
 
 @Injectable()
@@ -19,11 +18,11 @@ export class UserService {
     }
 
     updateUser(userModel: User) {
-        return this.http.put<UpdateAnswer>('api/users', userModel);
+        return this.http.put('api/users', userModel);
     }
 
-    getUserIdByArticleId(articleId: number) {
-        return this.http.get<number>(`api/users/article/${articleId}`);
+    getUserArticleId(articleId: number) {
+        return this.http.get<number>(`api/users/my/article/${articleId}`);
     }
 
     getProfilePickLink(id: number) {
@@ -31,12 +30,11 @@ export class UserService {
     }
 
     deleteUser(id: number) {
-        return this.http.delete<UpdateAnswer>(`api/users/${id}`);
+        return this.http.delete(`api/users/${id}`);
     }
 
     getUserRowsPage(query: PaginatorQuery) {
-        let params = new HttpParams({fromObject: query as any});
-        return this.http.get<PaginatorAnswer<UserRow>>(`api/users/`, { params: params });
+        return this.http.post<PaginatorAnswer<UserRow>>(`api/users`, query);
     }
 
 }

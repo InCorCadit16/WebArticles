@@ -19,7 +19,7 @@ namespace WebAPI.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("DataModel.Data.Entities.Article", b =>
+            modelBuilder.Entity("WebArticles.DataModel.Entities.Article", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -59,7 +59,7 @@ namespace WebAPI.Migrations
                     b.ToTable("Articles");
                 });
 
-            modelBuilder.Entity("DataModel.Data.Entities.Comment", b =>
+            modelBuilder.Entity("WebArticles.DataModel.Entities.Comment", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -92,7 +92,7 @@ namespace WebAPI.Migrations
                     b.ToTable("Comments");
                 });
 
-            modelBuilder.Entity("DataModel.Data.Entities.Reviewer", b =>
+            modelBuilder.Entity("WebArticles.DataModel.Entities.Reviewer", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -111,7 +111,7 @@ namespace WebAPI.Migrations
                     b.ToTable("Reviewer");
                 });
 
-            modelBuilder.Entity("DataModel.Data.Entities.ReviewerTopic", b =>
+            modelBuilder.Entity("WebArticles.DataModel.Entities.ReviewerTopic", b =>
                 {
                     b.Property<long>("ReviewerId")
                         .HasColumnType("bigint");
@@ -126,7 +126,7 @@ namespace WebAPI.Migrations
                     b.ToTable("ReviewerTopic");
                 });
 
-            modelBuilder.Entity("DataModel.Data.Entities.Role", b =>
+            modelBuilder.Entity("WebArticles.DataModel.Entities.Role", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -144,7 +144,7 @@ namespace WebAPI.Migrations
                     b.ToTable("Role");
                 });
 
-            modelBuilder.Entity("DataModel.Data.Entities.Topic", b =>
+            modelBuilder.Entity("WebArticles.DataModel.Entities.Topic", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -162,7 +162,7 @@ namespace WebAPI.Migrations
                     b.ToTable("Topic");
                 });
 
-            modelBuilder.Entity("DataModel.Data.Entities.User", b =>
+            modelBuilder.Entity("WebArticles.DataModel.Entities.User", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -219,7 +219,7 @@ namespace WebAPI.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("DataModel.Data.Entities.Writer", b =>
+            modelBuilder.Entity("WebArticles.DataModel.Entities.Writer", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -238,7 +238,7 @@ namespace WebAPI.Migrations
                     b.ToTable("Writer");
                 });
 
-            modelBuilder.Entity("DataModel.Data.Entities.WriterTopic", b =>
+            modelBuilder.Entity("WebArticles.DataModel.Entities.WriterTopic", b =>
                 {
                     b.Property<long>("WriterId")
                         .HasColumnType("bigint");
@@ -253,85 +253,85 @@ namespace WebAPI.Migrations
                     b.ToTable("WriterTopic");
                 });
 
-            modelBuilder.Entity("DataModel.Data.Entities.Article", b =>
+            modelBuilder.Entity("WebArticles.DataModel.Entities.Article", b =>
                 {
-                    b.HasOne("DataModel.Data.Entities.Topic", "Topic")
+                    b.HasOne("WebArticles.DataModel.Entities.Topic", "Topic")
                         .WithMany()
                         .HasForeignKey("TopicId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DataModel.Data.Entities.Writer", "Writer")
+                    b.HasOne("WebArticles.DataModel.Entities.Writer", "Writer")
                         .WithMany()
                         .HasForeignKey("WriterId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("DataModel.Data.Entities.Comment", b =>
+            modelBuilder.Entity("WebArticles.DataModel.Entities.Comment", b =>
                 {
-                    b.HasOne("DataModel.Data.Entities.Comment", "AnsweredComment")
+                    b.HasOne("WebArticles.DataModel.Entities.Comment", "AnsweredComment")
                         .WithMany()
                         .HasForeignKey("AnsweredCommentId");
 
-                    b.HasOne("DataModel.Data.Entities.Article", "Article")
+                    b.HasOne("WebArticles.DataModel.Entities.Article", "Article")
                         .WithMany("Comments")
                         .HasForeignKey("ArticleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DataModel.Data.Entities.Reviewer", "Reviewer")
+                    b.HasOne("WebArticles.DataModel.Entities.Reviewer", "Reviewer")
                         .WithMany()
                         .HasForeignKey("ReviewerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("DataModel.Data.Entities.ReviewerTopic", b =>
+            modelBuilder.Entity("WebArticles.DataModel.Entities.ReviewerTopic", b =>
                 {
-                    b.HasOne("DataModel.Data.Entities.Reviewer", "Reviewer")
+                    b.HasOne("WebArticles.DataModel.Entities.Reviewer", "Reviewer")
                         .WithMany("TopicsLink")
                         .HasForeignKey("ReviewerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DataModel.Data.Entities.Topic", "Topic")
+                    b.HasOne("WebArticles.DataModel.Entities.Topic", "Topic")
                         .WithMany("ReviewersLink")
                         .HasForeignKey("TopicId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("DataModel.Data.Entities.User", b =>
+            modelBuilder.Entity("WebArticles.DataModel.Entities.User", b =>
                 {
-                    b.HasOne("DataModel.Data.Entities.Reviewer", "Reviewer")
+                    b.HasOne("WebArticles.DataModel.Entities.Reviewer", "Reviewer")
                         .WithOne("User")
-                        .HasForeignKey("DataModel.Data.Entities.User", "ReviewerId")
+                        .HasForeignKey("WebArticles.DataModel.Entities.User", "ReviewerId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("DataModel.Data.Entities.Role", "Role")
+                    b.HasOne("WebArticles.DataModel.Entities.Role", "Role")
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DataModel.Data.Entities.Writer", "Writer")
+                    b.HasOne("WebArticles.DataModel.Entities.Writer", "Writer")
                         .WithOne("User")
-                        .HasForeignKey("DataModel.Data.Entities.User", "WriterId")
+                        .HasForeignKey("WebArticles.DataModel.Entities.User", "WriterId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("DataModel.Data.Entities.WriterTopic", b =>
+            modelBuilder.Entity("WebArticles.DataModel.Entities.WriterTopic", b =>
                 {
-                    b.HasOne("DataModel.Data.Entities.Topic", "Topic")
+                    b.HasOne("WebArticles.DataModel.Entities.Topic", "Topic")
                         .WithMany("WritersLink")
                         .HasForeignKey("TopicId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DataModel.Data.Entities.Writer", "Writer")
+                    b.HasOne("WebArticles.DataModel.Entities.Writer", "Writer")
                         .WithMany("TopicsLink")
                         .HasForeignKey("WriterId")
                         .OnDelete(DeleteBehavior.Cascade)

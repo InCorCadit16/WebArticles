@@ -10,8 +10,7 @@ namespace WebArticles.WebAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
-    public class UsersController : ControllerBase
+    public class UsersController : BaseController
     {
         private readonly UserService _userService;
 
@@ -50,6 +49,7 @@ namespace WebArticles.WebAPI.Controllers
                 return NotFound();
         }
 
+        [AllowAnonymous]
         [HttpGet("{id}/pick")]
         public async Task<IActionResult> GetProfilePickLink(long id)
         {

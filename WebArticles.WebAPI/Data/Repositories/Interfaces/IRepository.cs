@@ -1,4 +1,4 @@
-﻿using DataModel.Data.Entities;
+﻿using WebArticles.DataModel.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +20,8 @@ namespace WebAPI.Data.Repositories.Interfaces
 
         Task<TEntity> Delete(long id);
 
-        Task<PaginatorAnswer<TDto>> GetPage<TDto>(PaginatorQuery paginatorQuery, params Expression<Func<TEntity, object>>[] includeProperties)  where TDto: class;
+        Task<PaginatorAnswer<TDto>> GetPage<TDto>(PaginatorQuery paginatorQuery, params Expression<Func<TEntity, object>>[] includeProperties) where TDto: class;
+
+        Task SaveAllChanges();
     }
 }

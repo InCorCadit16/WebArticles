@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, OnDestroy, HostListener, Output, EventEmitter } from '@angular/core';
-import { Comment } from '../../../../data-model/models/comment';
+import { Comment } from '../../../../data-model/models/comment/comment';
 import { LoginService } from 'src/app/services/login-service';
 import { MatDialog } from '@angular/material/dialog';
 import { EditDialogComponent, TYPE_BIG } from '../../../../shared/edit-dialog/edit-dialog.component';

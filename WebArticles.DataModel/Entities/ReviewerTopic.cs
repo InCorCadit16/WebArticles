@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace DataModel.Data.Entities
+namespace WebArticles.DataModel.Entities
 {
     public class ReviewerTopic
     {

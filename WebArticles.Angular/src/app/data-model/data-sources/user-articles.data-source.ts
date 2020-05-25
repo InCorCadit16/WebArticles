@@ -1,5 +1,5 @@
 import { DataSource } from "@angular/cdk/table";
-import { ArticlePreview } from "../models/article-preview";
+import { ArticlePreview } from "../models/article/article-preview";
 import { BehaviorSubject, Observable, of } from "rxjs";
 import { finalize } from "rxjs/operators";
 import { ArticleService } from "src/app/services/article-service";

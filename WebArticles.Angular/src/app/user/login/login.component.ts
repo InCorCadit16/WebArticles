@@ -4,13 +4,15 @@ import { LoginService } from 'src/app/services/login-service';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { AlertDialogComponent } from 'src/app/shared/alert-dialog/alert-dialog.component';
-import { DOCUMENT } from '@angular/common';
+import { OAuthService } from 'angular-oauth2-oidc';
+import { JwksValidationHandler } from 'angular-oauth2-oidc-jwks';
+import { authConfig } from 'src/app/configs/google-auth.config';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
-  providers: [LoginService]
+  providers: [LoginService, OAuthService]
 })
 export class LoginComponent implements OnInit {
   userLoginModel = this.formBuilder.group({
@@ -22,11 +24,16 @@ export class LoginComponent implements OnInit {
     private loginService: LoginService,
     private dialog: MatDialog,
     private router: Router,
-    @Inject(DOCUMENT) private document: Document) {
-    loginService.logOut();
+    private oauthService: OAuthService) {
+      oauthService.configure(authConfig);
+      oauthService.tokenValidationHandler = new JwksValidationHandler();
+      oauthService.loadDiscoveryDocumentAndTryLogin();
+
+      loginService.logOut();
   }
 
   ngOnInit() {
+
   }
 
 
@@ -51,10 +58,7 @@ export class LoginComponent implements OnInit {
   }
 
   loginWithGoogle() {
-    this.loginService.loginWithGoogle()
-    .subscribe(
-      result => console.log(result)
-    );
+    this.oauthService.initImplicitFlow();
   }
 
   get username() {

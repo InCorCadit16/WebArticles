@@ -1,6 +1,11 @@
 ﻿using AutoMapper;
-using DataModel.Data.Entities;
+using WebArticles.DataModel.Entities;
+using Google.Apis.Auth;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Services;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +13,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
@@ -49,58 +55,80 @@ namespace WebArticles.WebAPI.Data.Services
             var checkPasswordResult = await _signInManager.PasswordSignInAsync(userLoginDto.UserName, userLoginDto.Password, false, false);
 
             if (!checkPasswordResult.Succeeded)
-            { 
+            {
                 throw new FormInvalidException($"", "Wrong username or password", StatusCodes.Status401Unauthorized);
             }
 
             var user = await _userService.GetUserByUserName(userLoginDto.UserName);
+
             string token = await GenerateToken(user);
 
             return new UserLoginAnswerDto() { EncodedToken = token, UserId = user.Id };
         }
 
-        public AuthenticationProperties ConfigureProperties(IUrlHelper url, string redirectMethod)
+        public async Task<UserLoginAnswerDto> LoginWithGoogle(string token)
         {
-            
-            return _signInManager.ConfigureExternalAuthenticationProperties("Google", url.Action(redirectMethod));
-        }
-
-        public async Task HandleExternalLogin()
-        {
-            var info = await _signInManager.GetExternalLoginInfoAsync();
-
-            var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false);
-
-            if (!result.Succeeded)
+            var handler = new JwtSecurityTokenHandler();
+            JwtSecurityToken decodedToken = null;
+            try
             {
-                var email = info.Principal.FindFirstValue(ClaimTypes.Email);
-                var newUser = new User
+                decodedToken = handler.ReadJwtToken(token);
+            } catch
+            {
+                throw new FormInvalidException("", "Cannot read authentication token");
+            }
+            
+
+            var email = decodedToken.Claims.First(c => c.Type == "email").Value;
+            var user = await _repository.GetUserByEmail(email);
+            if (user != null)
+            {
+                if (user.ExternalProvider)
                 {
-                    UserName = email,
-                    Email = email
-                };
-                var createResult = await _userManager.CreateAsync(newUser);
-                if (!createResult.Succeeded)
-                {
-                    throw new FormInvalidException("", createResult.Errors.Select(e => e.Description).Aggregate((d, res) => res += d + "\n"));
+                    await _signInManager.SignInAsync(user, false);
+                    string encodedToken = await GenerateToken(user);
+                    return new UserLoginAnswerDto { EncodedToken = encodedToken, UserId = user.Id };
                 }
+                else
+                {
+                    throw new FormInvalidException("", "This email have been already taken by a password based user. Please log in using your password.", StatusCodes.Status401Unauthorized);
+                }
+            }
+            else
+            {
+                string userName = decodedToken.Claims.FirstOrDefault(c => c.Type == "name")?.Value;
+                if ((await _repository.GetUserByUserName(userName)) != null)
+                    userName = await CreateUniqueUserName(userName);
 
-                await _userService.CreateWriterAndReviewer(newUser);
-                await _userManager.AddLoginAsync(newUser, info);
-                await SignInExternalUser(newUser, info);
+                user = new User
+                {
+                    Email = email,
+                    FirstName = decodedToken.Claims.FirstOrDefault(c => c.Type == "given_name")?.Value,
+                    LastName = decodedToken.Claims.FirstOrDefault(c => c.Type == "family_name")?.Value,
+                    ProfilePickLink = decodedToken.Claims.FirstOrDefault(c => c.Type == "picture")?.Value,
+                    ExternalProvider = true,
+                    UserName = userName
+                };
 
+                var result = await RegisterNewUser(user);
+
+                if (result.Succeeded)
+                {
+                    var encodedToken = await GenerateToken(user);
+                    return new UserLoginAnswerDto { EncodedToken = encodedToken, UserId = user.Id };
+                } else
+                {
+                    throw new FormInvalidException(result.Errors.Select(err => err.Description).Aggregate((desc, msg) => msg += desc + "\n"), "An unexpected error occured. Try later", StatusCodes.Status500InternalServerError);
+                }
             }
         }
 
-        private async Task SignInExternalUser(User user, ExternalLoginInfo info)
-        {
-            var userClaims = info.Principal.Claims.Append(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()))
-                                .Append(new Claim(ClaimTypes.Name, user.UserName))
-                                .Append(new Claim(ClaimTypes.Role, "User"));
 
-            await _userManager.AddClaimsAsync(user, userClaims);
-            await _signInManager.SignInAsync(user, isPersistent: false);
+        public async Task Logout()
+        {
+            await _signInManager.SignOutAsync();
         }
+
 
         public async Task<UserRegisterAnswerDto> Register(UserRegisterQueryDto userRegisterDto)
         {
@@ -120,6 +148,24 @@ namespace WebArticles.WebAPI.Data.Services
             return new UserRegisterAnswerDto { User = user };
         }
 
+        private async Task<IdentityResult> RegisterNewUser(User user, string password = null)
+        {
+            IdentityResult result;
+            if (password == null)
+                result = await _userManager.CreateAsync(user);
+            else
+                result = await _userManager.CreateAsync(user, password);
+
+            if (result.Succeeded)
+            {
+                await _repository.SaveAllChanges();
+                await _userService.CreateWriterAndReviewer(user);
+                await _userManager.AddToRoleAsync(user, "User");
+            }
+
+            return result;
+        }
+
         private async Task<string> GenerateToken(User user)
         {
             var roles = await _userManager.GetRolesAsync(user);
@@ -127,7 +173,8 @@ namespace WebArticles.WebAPI.Data.Services
             var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new Claim(ClaimTypes.Name, user.UserName)
+                    new Claim(ClaimTypes.Name, user.UserName),
+                    new Claim(ClaimTypes.AuthenticationMethod, user.ExternalProvider? "external": "internal")
                 };
 
             roles.ToList().ForEach(r => claims.Add(new Claim(ClaimTypes.Role, r)));
@@ -145,21 +192,13 @@ namespace WebArticles.WebAPI.Data.Services
             return tokenHandler.WriteToken(jwtToken);
         }
 
-        private async Task<IdentityResult> RegisterNewUser(User user, string password = null)
+        private async Task<string> CreateUniqueUserName(string userName)
         {
-            IdentityResult result;
-            if (password == null)
-                result = await _userManager.CreateAsync(user);
-            else
-                result = await _userManager.CreateAsync(user, password);
+            int i = 0;
+            while ((await _repository.GetUserByUserName($"{userName} {++i}")) != null) ;
 
-            if (result.Succeeded)
-            {
-                await _userService.CreateWriterAndReviewer(user);
-                await _userManager.AddToRoleAsync(user, "User");
-            }
-
-            return result;
+            return userName + i;
         }
     }
 }
+

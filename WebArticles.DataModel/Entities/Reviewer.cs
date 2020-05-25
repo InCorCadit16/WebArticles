@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 
-namespace DataModel.Data.Entities
+namespace WebArticles.DataModel.Entities
 {
     public class Reviewer : Entity
     {

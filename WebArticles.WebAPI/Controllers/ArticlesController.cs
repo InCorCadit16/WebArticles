@@ -5,13 +5,15 @@ using System.Threading.Tasks;
 using WebArticles.WebAPI.Data.Dtos;
 using WebArticles.WebAPI.Infrastructure.Models;
 using WebArticles.WebAPI.Data.Services;
+using System.Linq;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
 
-namespace WebArticles.Controllers
+namespace WebArticles.WebAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
-    public class ArticlesController : ControllerBase
+    public class ArticlesController : BaseController
     {
         private readonly ArticleService _articleService;
 
@@ -61,14 +63,23 @@ namespace WebArticles.Controllers
             return Created($"api/articles/{id}", id);
         }
 
+        [HttpGet("{articleId}/rating")]
+        public async Task<ActionResult<int>> GetUserArticleMark(long articleId)
+        {
+            long userId = long.Parse(HttpContext.User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
+            var mark = await _articleService.GetUserArticleMark(userId, articleId);
+            return Ok(mark);
+        }
+
         [HttpPut("rating")]
         public async Task<ActionResult<int>> UpdateArticleRating(RatingUpdateDto ratingUpdate)
         {
-            return await _articleService.UpdateRating(ratingUpdate.Id, ratingUpdate.Rating);
+            long userId = long.Parse(HttpContext.User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
+            return await _articleService.UpdateRating(userId, ratingUpdate.Id, ratingUpdate.NewMark);
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteArticle([FromRoute] long id)
+        public async Task<IActionResult> DeleteArticle(long id)
         {
             await _articleService.DeleteArticle(id);
 

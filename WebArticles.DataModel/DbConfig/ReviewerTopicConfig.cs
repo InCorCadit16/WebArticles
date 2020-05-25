@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DataModel.Data.Entities;
+using WebArticles.DataModel.Entities;
 
 namespace DataModel.Data.DbConfig
 {

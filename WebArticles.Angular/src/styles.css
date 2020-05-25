@@ -24,3 +24,48 @@ code {
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.scrollbar-primary::-webkit-scrollbar {
+  width: 12px;
+  background-color: rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+.scrollbar-primary::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+  background-color: rgb(49, 24, 82)
+}
+
+
+/* styles for text editor  */
+.tox .tox-edit-area__iframe,
+.tox .tox-toolbar-overlord,
+.tox:not(.tox-tinymce-inline) .tox-editor-header,
+.tox .tox-toolbar__primary {
+  background: transparent!important;
+  background-color: transparent!important;
+}
+
+.tox-toolbar__primary {
+  border: 1px solid rgba(0,0,0, 0.13)!important;
+  border-radius: 5px!important;
+  border-top: none!important;
+  transition: all 0.1s!important;
+}
+
+.mat-form-field-flex:hover .tox-toolbar__primary{
+  border: 2px solid rgba(0,0,0)!important;
+  border-radius: 5px!important;
+  border-top: none!important;
+}
+
+.mce-content-body {
+  margin: 5px 0!important;
+}
+
+editor {
+  margin-top: -21px;
+}

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Topic } from 'src/app/data-model/models/topic';
+import { Topic } from 'src/app/data-model/models/topic/topic';
 import { TopicService } from 'src/app/services/topic-service';
 import { MatDialog } from '@angular/material/dialog';
 import { AlertDialogComponent } from 'src/app/shared/alert-dialog/alert-dialog.component';

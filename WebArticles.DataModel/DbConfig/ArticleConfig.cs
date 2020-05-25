@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using DataModel.Data.Entities;
+using System;
+using WebArticles.DataModel.Entities;
 
 namespace DataModel.Data.DbConfig
 {
@@ -8,8 +9,11 @@ namespace DataModel.Data.DbConfig
     {
         public void Configure(EntityTypeBuilder<Article> builder)
         {
-            builder.HasMany(a => a.Comments)
-                   .WithOne(c => c.Article).OnDelete(DeleteBehavior.Cascade);
+            builder.HasOne(a => a.Writer).WithMany(w => w.Articles).OnDelete(DeleteBehavior.Cascade);
+
+            builder.Property(a => a.PublishDate);
+
+            builder.Property(a => a.LastEditDate);
         }
     }
 }

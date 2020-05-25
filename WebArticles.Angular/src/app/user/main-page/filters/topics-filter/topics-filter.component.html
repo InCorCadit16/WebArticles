@@ -1,6 +1,6 @@
 <div>
     <h4>Topics</h4>
-    <mat-selection-list #matTopics>
+    <mat-selection-list #matTopics id="matTopics" class="scrollbar scrollbar-primary">
         <mat-list-option
         *ngFor="let topic of topics | async; let i = index"
         ngDefaultControl

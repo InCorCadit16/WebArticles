@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
-using DataModel.Data.Entities;
+using WebArticles.DataModel.Entities;
 using System.Collections.Generic;
 using System;
 using WebArticles.WebAPI.Infrastructure.Models;
@@ -11,6 +11,7 @@ using WebAPI.Data.Repositories.Interfaces;
 using WebAPI.Infrastructure;
 using WebAPI;
 using WebArticles.WebAPI.Infrastructure.Exceptions;
+using WebAPI.Infrastructure.Extensions;
 
 namespace WebArticles.WebAPI.Data.Repositories.Implementations
 {
@@ -27,6 +28,7 @@ namespace WebArticles.WebAPI.Data.Repositories.Implementations
 
         public async Task<TEntity> Insert(TEntity entity)
         {
+            _context.Entry(entity).State = EntityState.Modified;
             await _context.AddAsync(entity);
             await _context.SaveChangesAsync();
             return entity;
@@ -34,6 +36,7 @@ namespace WebArticles.WebAPI.Data.Repositories.Implementations
 
         public async Task<TEntity> Update(TEntity entity)
         {
+            _context.Entry(entity).State = EntityState.Modified;
             _context.Update(entity);
             await _context.SaveChangesAsync();
             return entity;
@@ -84,6 +87,11 @@ namespace WebArticles.WebAPI.Data.Repositories.Implementations
 
             IQueryable<TEntity> query = IncludeProperties(includeProperties);
             return await query.ToListAsync();
+        }
+
+        public async Task SaveAllChanges()
+        {
+            await _context.SaveChangesAsync();
         }
 
         protected IQueryable<TEntity> IncludeProperties(params Expression<Func<TEntity, object>>[] includeProperties)

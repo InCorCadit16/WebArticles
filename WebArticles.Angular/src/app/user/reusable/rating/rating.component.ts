@@ -1,13 +1,14 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { ArticleService } from 'src/app/services/article-service';
 import { CommentService } from 'src/app/services/comment-service';
-import { Article } from 'src/app/data-model/models/article';
+import { Article } from 'src/app/data-model/models/article/article';
+import { LoginService } from 'src/app/services/login-service';
 
 @Component({
   selector: 'app-rating',
   templateUrl: './rating.component.html',
   styleUrls: [ './rating.component.css' ],
-  providers: [ ArticleService, CommentService ]
+  providers: [ ArticleService, CommentService, LoginService ]
 })
 export class RatingComponent implements OnInit {
   @Input() rating: number;
@@ -19,39 +20,41 @@ export class RatingComponent implements OnInit {
 
 
   constructor(private articleService: ArticleService,
-              private commentService: CommentService) { }
+              private commentService: CommentService,
+              private loginService: LoginService) { }
 
   ngOnInit() {
+    if (this.changable) {
+      if (this.sourceType === 'article')
+        this.articleService.getUserArticleMark(this.sourceId).subscribe(mark => { this.state = mark });
+      else
+        this.commentService.getUserCommentMark(this.sourceId).subscribe(mark => { this.state = mark });
+    }
   }
 
   onUpClicked() {
-    if (this.state !== 1) {
-      this.changeRating(this.state == 0? 1: 2);
-      this.state = 1;
-    } else {
-      this.changeRating(-1)
-      this.state = 0;
-    }
+    if (this.state == 1)
+      this.changeRating(0);
+    else
+      this.changeRating(1);
   }
 
   onDownClicked() {
-    if (this.state !== -1) {
-      this.changeRating(this.state == 0? -1: -2);
-      this.state = -1;
-    } else {
-      this.changeRating(1)
-      this.state = 0;
-    }
+    if (this.state == -1)
+      this.changeRating(0);
+    else
+      this.changeRating(-1);
   }
 
   changeRating(changeWith: number) {
     if (this.sourceType === 'article') {
-      this.articleService.updateArticleRating(this.sourceId, this.rating + changeWith)
+      this.articleService.updateArticleRating(this.sourceId, changeWith)
       .subscribe(newRating => { this.rating = newRating })
     } else {
-      this.commentService.updateCommentRating(this.sourceId, this.rating + changeWith)
+      this.commentService.updateCommentRating(this.sourceId, changeWith)
       .subscribe(newRating => { this.rating = newRating })
     }
+    this.state = changeWith;
   }
 
 }

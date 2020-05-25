@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { HttpClient, HttpParams } from "@angular/common/http";
-import { User } from "../data-model/models/user";
-import { UserRow } from "../data-model/models/user-row";
+import { User } from "../data-model/models/user/user";
+import { UserRow } from "../data-model/models/user/user-row";
 import { LoginService } from "./login-service";
 import { PaginatorAnswer } from "../data-model/infrastructure/models/paginator-answer";
 import { PaginatorQuery } from "../data-model/infrastructure/models/paginator-query";

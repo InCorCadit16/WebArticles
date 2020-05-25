@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 
 
-namespace DataModel.Data.Entities
+namespace WebArticles.DataModel.Entities
 {
     public class Role : IdentityRole<long>
     {

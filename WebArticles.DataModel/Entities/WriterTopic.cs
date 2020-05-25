@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
-namespace DataModel.Data.Entities
+namespace WebArticles.DataModel.Entities
 {
     public class WriterTopic
     {

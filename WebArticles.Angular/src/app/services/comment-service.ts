@@ -1,10 +1,10 @@
 import { Injectable } from "@angular/core";
 
-import { Comment } from "../data-model/models/comment";
+import { Comment } from "../data-model/models/comment/comment";
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { PaginatorAnswer } from "../data-model/infrastructure/models/paginator-answer";
 import { PaginatorQuery } from "../data-model/infrastructure/models/paginator-query";
-import { CommentCreate } from "../data-model/models/comment-create";
+import { CommentCreate } from "../data-model/models/comment/comment-create";
 
 @Injectable()
 export class CommentService {
@@ -20,7 +20,7 @@ export class CommentService {
     }
 
     updateComment(commentId: number, newContent: string) {
-        return this.http.put(`api/comments`, { id: commentId, newContent: newContent });
+        return this.http.put(`api/comments`, { id: commentId, newContent: newContent, lastEditDate: new Date() });
     }
 
     deleteComment(commentId: number) {
@@ -31,7 +31,11 @@ export class CommentService {
         return this.http.post<number>(`api/comments`, createComment);
     }
 
-    updateCommentRating(commentId: number, newRating: number) {
-        return this.http.put<number>('api/comments/rating', { id: commentId, rating: newRating });
+    getUserCommentMark(commentId: number) {
+        return this.http.get<number>(`api/comments/${commentId}/rating`);
+    }
+
+    updateCommentRating(commentId: number, newMark: number) {
+        return this.http.put<number>('api/comments/rating', { id: commentId, newMark: newMark });
     }
 }

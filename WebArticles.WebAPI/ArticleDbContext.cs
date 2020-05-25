@@ -1,11 +1,12 @@
 ﻿using DataModel.Data.DbConfig;
-using DataModel.Data.Entities;
+using WebArticles.DataModel.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using WebArticles.DataModel.Data.DbConfig.Schemas;
-using WebArticles.DataModel.Data.Entities.Auth;
+using WebArticles.WebArticles.DataModel.Entities.Auth;
 using System.Configuration;
 using System.Reflection;
+using Microsoft.Extensions.Options;
 
 namespace WebAPI
 {
@@ -17,12 +18,12 @@ namespace WebAPI
 
         public ArticleDbContext(DbContextOptions<ArticleDbContext> options) : base(options)
         {
-
+            
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-
+            optionsBuilder.EnableSensitiveDataLogging();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -1,14 +1,13 @@
 ﻿using AutoMapper;
-using DataModel.Data.Entities;
+using WebArticles.DataModel.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using WebAPI;
-using WebAPI.Infrastructure;
 using WebArticles.WebAPI.Infrastructure.Models;
+using WebAPI.Infrastructure.Extensions;
 
 namespace WebArticles.WebAPI.Data.Repositories.Implementations
 {
@@ -47,15 +46,23 @@ namespace WebArticles.WebAPI.Data.Repositories.Implementations
             if (!string.IsNullOrWhiteSpace(paginatorQuery.SearchString))
                 query = query.Where(a => a.Title.Contains(paginatorQuery.SearchString));
 
-            query = query.TagsMatch(paginatorQuery);
-
-            var total = await query.CountAsync();
-
             query = query.Sort(paginatorQuery);
 
-            query = query.GetPage(paginatorQuery.Page, paginatorQuery.PageSize);
+            var list = await query.ToListAsync();
 
-            var result = _mapper.Map<TDto[]>(await query.ToArrayAsync());
+            list = list.TagsMatch(paginatorQuery.Filters);
+
+            list = list.RatingFilter(paginatorQuery.Filters);
+
+
+            if (paginatorQuery.SortBy == "rating")
+                list = list.SortByRating(paginatorQuery);
+
+            var total = list.Count();
+
+            list = list.GetPage(paginatorQuery.Page, paginatorQuery.PageSize);
+
+            var result = _mapper.Map<TDto[]>(list.ToArray());
 
             return new PaginatorAnswer<TDto>
             {

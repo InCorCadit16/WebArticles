@@ -1,18 +1,16 @@
 ﻿using AutoMapper;
-using DataModel.Data.Entities;
+using WebArticles.DataModel.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using WebAPI;
 using WebAPI.Data.Repositories.Interfaces;
-using WebAPI.Infrastructure;
 using WebArticles.WebAPI.Infrastructure.Exceptions;
 using WebArticles.WebAPI.Infrastructure.Models;
+using WebAPI.Infrastructure.Extensions;
 
 namespace WebArticles.WebAPI.Data.Repositories.Implementations
 {
@@ -43,6 +41,7 @@ namespace WebArticles.WebAPI.Data.Repositories.Implementations
 
         public async Task<User> Insert(User user)
         {
+            _context.Entry(user).State = EntityState.Modified;
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
             return user;
@@ -50,6 +49,7 @@ namespace WebArticles.WebAPI.Data.Repositories.Implementations
 
         public async Task<User> Update(User user)
         {
+            _context.Entry(user).State = EntityState.Modified;
             _context.Update(user);
             await _context.SaveChangesAsync();
             return user;
@@ -71,15 +71,17 @@ namespace WebArticles.WebAPI.Data.Repositories.Implementations
 
             query = query.Include(u => u.Writer)
                             .ThenInclude(w => w.TopicsLink)
-                            .ThenInclude(wt => wt.Topic)
+                                .ThenInclude(wt => wt.Topic)
                           .Include(u => u.Writer)
-                            .ThenInclude(w => w.Articles);
+                            .ThenInclude(w => w.Articles)
+                                .ThenInclude(a => a.UserArticleMarks);
 
             query = query.Include(u => u.Reviewer)
                             .ThenInclude(r => r.TopicsLink)
-                            .ThenInclude(rt => rt.Topic)
+                                .ThenInclude(rt => rt.Topic)
                           .Include(u => u.Reviewer)
-                            .ThenInclude(w => w.Comments);
+                            .ThenInclude(w => w.Comments)
+                                .ThenInclude(a => a.UserCommentMarks);
 
             return await query.FirstOrDefaultAsync(u => u.Id == id);
         }
@@ -115,6 +117,11 @@ namespace WebArticles.WebAPI.Data.Repositories.Implementations
         {
             IQueryable<User> query = IncludeProperties(includeProperties);
             return await query.ToListAsync();
+        }
+
+        public async Task SaveAllChanges()
+        {
+            await _context.SaveChangesAsync();
         }
 
         private IQueryable<User> IncludeProperties(params Expression<Func<User, object>>[] includeProperties)

@@ -1,6 +1,6 @@
 .fluid-container {
     background: linear-gradient(#FFD7A1, #BB86FF);
-    padding: 70px 32px;
+    padding: 70px 64px;
     min-height: 100%;
 }
 
@@ -35,7 +35,8 @@
     padding-right: 0px;
 }
 
-app-article-preview {
+app-article-preview,
+table {
     width: 100%;
 }
 

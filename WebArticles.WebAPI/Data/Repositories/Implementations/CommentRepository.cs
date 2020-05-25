@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using DataModel.Data.Entities;
+using WebArticles.DataModel.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using System;
@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using WebAPI;
 using WebAPI.Infrastructure;
 using WebArticles.WebAPI.Infrastructure.Models;
+using WebAPI.Infrastructure.Extensions;
 
 namespace WebArticles.WebAPI.Data.Repositories.Implementations
 {
@@ -50,9 +51,14 @@ namespace WebArticles.WebAPI.Data.Repositories.Implementations
 
             query = query.Sort(paginatorQuery);
 
-            query = query.GetPage(paginatorQuery.Page, paginatorQuery.PageSize);
+            var list = await query.ToListAsync();
 
-            var result = _mapper.Map<TDto[]>(await query.ToArrayAsync());
+            if (paginatorQuery.SortBy == "rating")
+                list = list.SortByRating(paginatorQuery);
+
+            list = list.GetPage(paginatorQuery.Page, paginatorQuery.PageSize);
+
+            var result = _mapper.Map<TDto[]>(list.ToArray());
 
             return new PaginatorAnswer<TDto>
             {

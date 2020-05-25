@@ -1,15 +1,16 @@
-﻿using DataModel.Data.Entities;
+﻿using WebArticles.DataModel.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using WebArticles.WebAPI.Data.Dtos;
 using WebArticles.WebAPI.Data.Services;
+using WebArticles.WebAPI.Controllers;
 
 namespace WebAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class TopicsController : ControllerBase
+    public class TopicsController : BaseController
     {
         private readonly TopicService _topicService;
 

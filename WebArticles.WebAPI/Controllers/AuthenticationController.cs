@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using Google.Apis.Services;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Primitives;
 using System.Threading.Tasks;
 using WebArticles.WebAPI.Data.Dtos;
@@ -11,8 +14,7 @@ namespace WebArticles.WebAPI.Controllers
 {
     [ApiController]
     [Route("api/{controller}")]
-    [AllowAnonymous]
-    public class AuthenticationController : ControllerBase
+    public class AuthenticationController : BaseController
     {
         private readonly Data.Services.AuthenticationService _authenticationService;
 
@@ -21,7 +23,8 @@ namespace WebArticles.WebAPI.Controllers
             this._authenticationService = authenticationService;
         }
 
-       
+
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UserLoginQueryDto userLoginDto)
         {
@@ -29,32 +32,32 @@ namespace WebArticles.WebAPI.Controllers
             return Ok(result);
         }
 
-        [HttpPost("register")]
+        [AllowAnonymous]
+        [HttpPost("register")]    
         public async Task<IActionResult> Register([FromBody] UserRegisterQueryDto userRegisterDto)
         {
             var result = await _authenticationService.Register(userRegisterDto);
             return Created($"api/users/{result.User.Id}", result);
         }
 
-        
+        [AllowAnonymous]
         [HttpPost("google")]
-        public IActionResult SignInWithGoogle()
+        public async Task<IActionResult> SignInWithGoogle()
         {
-            var authenticationProperties = _authenticationService.ConfigureProperties(Url, nameof(HandleExternalLogin));
-            HttpContext.Response.Headers.Add("Access-Control-Allow-Origin", "*");
-            HttpContext.Response.Headers.Add("Access-Control-Max-Age", "1000");
-            HttpContext.Response.Headers.Add("Access-Control-Allow-Headers", "X-Requested-With, Content-Type, Origin, Authorization");
-            HttpContext.Response.Headers.Add("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, OPTIONS");
-            HttpContext.Response.Headers.Add("Access-Control-Allow-Credentials", "true");
-            HttpContext.Response.Headers.Add("Content-Length", "0");
-            return Challenge(authenticationProperties, "Google");
+            if (HttpContext.Request.Headers.TryGetValue("Authorization", out StringValues value))
+            {
+                var token = value.ToString().Substring(7);
+                var result = await _authenticationService.LoginWithGoogle(token);
+                return Ok(result);
+            }
+            return Unauthorized();
         }
 
-        public async Task<IActionResult> HandleExternalLogin()
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
         {
-            await _authenticationService.HandleExternalLogin();
-            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
-            return Redirect("http://localhost:4200/main");
+            await _authenticationService.Logout();
+            return Ok();
         }
     }
 }

@@ -4,8 +4,8 @@ import { LoginService } from 'src/app/services/login-service';
 import { MatDialog } from '@angular/material';
 import { AlertDialogComponent } from 'src/app/shared/alert-dialog/alert-dialog.component';
 import { Router } from '@angular/router';
-import { RegisterQuery } from 'src/app/data-model/models/register-query';
-import { LoginQuery } from 'src/app/data-model/models/login-query';
+import { RegisterQuery } from 'src/app/data-model/models/user/register-query';
+import { LoginQuery } from 'src/app/data-model/models/user/login-query';
 
 @Component({
   selector: 'app-registration',

@@ -2,7 +2,7 @@ import { DataSource } from "@angular/cdk/table";
 import { BehaviorSubject, Observable, of } from "rxjs";
 import { finalize } from "rxjs/operators";
 import { CollectionViewer} from "@angular/cdk/collections";
-import { UserRow } from "../models/user-row";
+import { UserRow } from "../models/user/user-row";
 import { UserService } from "src/app/services/user-service";
 import { PaginatorQuery } from "../infrastructure/models/paginator-query";
 

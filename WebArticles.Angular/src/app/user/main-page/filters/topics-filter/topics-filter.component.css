@@ -6,3 +6,8 @@
 .topic>input {
     margin-right: 5px;
 }
+
+.mat-list-base {
+    max-height: 240px;
+    overflow-y: auto;
+}

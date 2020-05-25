@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using WebArticles.WebAPI.Data.Dtos;
 using WebArticles.WebAPI.Data.Services;
@@ -9,8 +11,7 @@ namespace WebArticles.WebAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
-    public class CommentsController : ControllerBase
+    public class CommentsController : BaseController
     {
         private readonly CommentService _commentService;
 
@@ -55,10 +56,19 @@ namespace WebArticles.WebAPI.Controllers
             return Ok(id);
         }
 
+        [HttpGet("{commentId}/rating")]
+        public async Task<ActionResult<int>> GetUserArticleMark(long commentId)
+        {
+            long userId = long.Parse(HttpContext.User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
+            var mark = await _commentService.GetUserCommentMark(userId, commentId);
+            return Ok(mark);
+        }
+
         [HttpPut("rating")]
         public async Task<ActionResult<int>> UpdateCommentRating(RatingUpdateDto ratingUpdate)
         {
-            return await _commentService.UpdateRating(ratingUpdate.Id, ratingUpdate.Rating);
+            long userId = long.Parse(HttpContext.User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
+            return await _commentService.UpdateRating(userId, ratingUpdate.Id, ratingUpdate.NewMark);
         }
     }
 }

@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
-namespace DataModel.Data.Entities
+namespace WebArticles.DataModel.Entities
 {
     public class User : IdentityUser<long>
     { 
@@ -34,5 +36,10 @@ namespace DataModel.Data.Entities
 
         public Writer Writer { get; set; }
         public Reviewer Reviewer { get; set; }
+
+        public bool ExternalProvider { get; set; }
+
+        public ICollection<UserArticleMark> UserArticleMarks { get; set; }
+        public ICollection<UserCommentMark> UserCommentMarks { get; set; }
     }
 }

@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, AfterContentInit, AfterViewInit, ViewChildren, QueryList, OnDestroy, ElementRef, SimpleChanges, OnChanges } from '@angular/core';
 import { ActivatedRoute, Router, NavigationExtras } from '@angular/router';
 import { UserService } from 'src/app/services/user-service';
-import { User } from 'src/app/data-model/models/user';
+import { User } from 'src/app/data-model/models/user/user';
 import { ArticleService } from 'src/app/services/article-service';
 import { UserArticleDataSource } from 'src/app/data-model/data-sources/user-articles.data-source';
 import { MatPaginator, MatDivider, MatDialog } from '@angular/material';

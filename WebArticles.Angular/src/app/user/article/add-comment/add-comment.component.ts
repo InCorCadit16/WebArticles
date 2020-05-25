@@ -5,7 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommentListComponent } from 'src/app/user/reusable/comment-list/comment-list.component';
 import { AlertDialogComponent } from 'src/app/shared/alert-dialog/alert-dialog.component';
-import { CommentCreate } from 'src/app/data-model/models/comment-create';
+import { CommentCreate } from 'src/app/data-model/models/comment/comment-create';
 
 @Component({
   selector: 'app-add-comment',
@@ -33,7 +33,8 @@ export class AddCommentComponent implements OnInit {
       let commentCreate: CommentCreate = {
         userId: this.loginService.getUserId(),
         articleId: this.articleId,
-        content: this.commentText
+        content: this.commentText,
+        publishDate: new Date()
       }
 
       this.commentService.createComment(commentCreate)

@@ -4,7 +4,7 @@ import { TopicsFilterComponent } from './topics-filter/topics-filter.component';
 import { RatingFilterComponent } from './rating-filter/rating-filter.component';
 import { DateFilterComponent } from './date-filter/date-filter.component';
 import { TagsFilterComponent } from './tags-filter/tags-filter.component';
-import { Topic } from 'src/app/data-model/models/topic';
+import { Topic } from 'src/app/data-model/models/topic/topic';
 import { TopicService } from 'src/app/services/topic-service';
 import { Filter } from 'src/app/data-model/infrastructure/models/filter';
 import { FiltersCompareActions } from 'src/app/data-model/infrastructure/models/filters-compare-actions';
@@ -36,7 +36,7 @@ export class FiltersComponent implements OnInit {
   }
 
   onApplyFilters() {
-      let chosenTopics = JSON.stringify(this.topicsFilter.topicsListView.options.map((o) =>  o.selected? o.value: "").filter(val => val.length != 0)).replace(/[\"\]\[]/g,'');
+      let chosenTopics = JSON.stringify(this.topicsFilter.topicsListView.options.map((o) =>  o.selected? o.value: "").filter(val => val.length != 0)).replace(/[\]\[]/g,'');
 
       let requestFilters = new RequestFilters();
 
@@ -59,13 +59,13 @@ export class FiltersComponent implements OnInit {
 
       if (start != null) {
         start.setHours(0,0);
-        requestFilters.filters.push(new Filter("publichDate", start.toJSON(), FiltersCompareActions.isGreaterThenOrEqual));
+        requestFilters.filters.push(new Filter("publishDate",`"${start.toJSON()}"`, FiltersCompareActions.isGreaterThenOrEqual));
       }
 
 
       if (end != null) {
         end.setHours(23,59);
-        requestFilters.filters.push(new Filter("publichDate", end.toJSON(), FiltersCompareActions.isLessThenOrEqual));
+        requestFilters.filters.push(new Filter("publishDate", `"${end.toJSON()}"`, FiltersCompareActions.isLessThenOrEqual));
       }
 
       // Tags

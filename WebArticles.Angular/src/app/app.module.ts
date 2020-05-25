@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule} from '@angular/common/http';
-import { NgModule } from '@angular/core';
+import { NgModule, APP_INITIALIZER } from '@angular/core';
 
 import { AppComponent } from './app.component';
 import { HeaderComponent } from './user/reusable/header/header.component';
@@ -35,7 +35,8 @@ import { EditArticleComponent } from './user/article/edit-article/edit-article.c
 import { AdminGuard } from './guards/admin.guard';
 import { SharedModule } from './shared/shared.module';
 import { AuthInterceptorProvider } from './providers/auth-interceptor';
-
+import { OAuthModule, OAuthService } from 'angular-oauth2-oidc';
+import { EditorModule } from "@tinymce/tinymce-angular";
 
 
 @NgModule({
@@ -70,6 +71,8 @@ import { AuthInterceptorProvider } from './providers/auth-interceptor';
     HttpClientModule,
     BrowserAnimationsModule,
     AppRoutingModule,
+    EditorModule,
+    OAuthModule.forRoot()
   ],
   providers: [
     LoginService,
@@ -78,13 +81,15 @@ import { AuthInterceptorProvider } from './providers/auth-interceptor';
     WriterIdGuard,
     AuthGuard,
     AdminGuard,
-    AuthInterceptorProvider
+    AuthInterceptorProvider,
+    OAuthService
   ],
   bootstrap: [AppComponent]
 })
 
 
 export class AppModule {
-
+  constructor() {
+  }
 
 }

@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using DataModel.Data.Entities;
+using WebArticles.DataModel.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 using System;
@@ -10,8 +10,9 @@ using System.Text;
 using System.Threading.Tasks;
 using WebArticles.WebAPI.Data.Dtos;
 using WebArticles.WebAPI.Infrastructure.Models;
+using System.Collections.Generic;
 
-namespace WebAPI.Infrastructure
+namespace WebAPI.Infrastructure.Extensions
 {
     public static class QueryableExtensions
     {
@@ -20,22 +21,25 @@ namespace WebAPI.Infrastructure
         {
             if (filters != null)
             {
-                var predicate = new StringBuilder();
-                for (int i = 0; i < filters.Filters.Count; i++)
-                {
-                    if (i > 0)
-                    {
-                        predicate.Append($" {filters.LogicalOperator} ");
-                    }
-                    predicate.Append(filters.Filters[i].Path + $" {filters.Filters[i].Action} (@{i})");
-                }
-
                 if (filters.Filters.Any())
                 {
+                    var predicate = new StringBuilder();
                     var propertyValues = filters.Filters.Select(f => f.Value).ToArray();
+                    for (int i = 0; i < filters.Filters.Count; i++)
+                    {
+                        
+                        if (filters.Filters[i].Path == "rating") continue;
 
-                    query = query.Where(predicate.ToString(), propertyValues);
+                        if (i > 0)
+                        {
+                            predicate.Append($" {filters.LogicalOperator} ");
+                        }
+                        predicate.Append($"{filters.Filters[i].Path} {filters.Filters[i].Action} ({propertyValues[i]})");
+                    }
+
+                    query = query.Where(predicate.ToString());
                 }
+                
             }
 
             return query;
@@ -48,31 +52,18 @@ namespace WebAPI.Infrastructure
 
         public static IQueryable<T> Sort<T>(this IQueryable<T> query, PaginatorQuery paginatorQuery)
         {
-            if (!string.IsNullOrWhiteSpace(paginatorQuery.SortBy))
+            if (!string.IsNullOrWhiteSpace(paginatorQuery.SortBy) && paginatorQuery.SortBy != "rating")
             {
                 query = query.OrderBy(paginatorQuery.SortBy + " " + paginatorQuery.SortDirection);
             }
             return query;
         }
 
-        public static IQueryable<Article> TagsMatch(this IQueryable<Article> query, PaginatorQuery paginatorQuery)
-        {
-            if (paginatorQuery.Filters != null && paginatorQuery.Filters.Tags != null)
-            {
-                if (paginatorQuery.Filters.Tags.Count() > 0)
-                {
-                    query = query.Where(a => a.Tags.Split('#', StringSplitOptions.None).AsQueryable().Intersect(paginatorQuery.Filters.Tags).Any());
-                }
-            }
-            return query;
-
-        }
+        
 
         public static async Task<TDestination[]> MapWithAsync<TSource, TDestination>(this IQueryable<TSource> query, IMapper mapper)
         {
             return mapper.Map<TDestination[]>(await query.ToArrayAsync());
         }
-
-        
     }
 }

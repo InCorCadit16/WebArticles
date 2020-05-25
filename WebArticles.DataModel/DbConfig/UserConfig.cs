@@ -1,4 +1,4 @@
-﻿using DataModel.Data.Entities;
+﻿using WebArticles.DataModel.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

@@ -1,10 +1,11 @@
 ﻿using AutoMapper;
-using DataModel.Data.Entities;
+using WebArticles.DataModel.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using WebArticles.WebAPI.Data.Dtos;
 using WebArticles.WebAPI.Data.Repositories.Implementations;
 using WebArticles.WebAPI.Infrastructure.Models;
+using System.Linq;
 
 namespace WebArticles.WebAPI.Data.Services
 {
@@ -24,20 +25,20 @@ namespace WebArticles.WebAPI.Data.Services
 
         public async Task<ArticleDto> GetArticleById(long id)
         {
-            var article = await _repository.GetById(id, a => a.Topic, a => a.Writer, a => a.Writer.User);
+            var article = await _repository.GetById(id, a => a.Topic, a => a.Writer, a => a.Writer.User, a => a.UserArticleMarks);
 
             return _mapper.Map<ArticleDto>(article);
         }
 
         public async Task<PaginatorAnswer<ArticlePreviewDto>> GetArticlesPage(PaginatorQuery paginatorQuery)
         {
-            return await _repository.GetPage<ArticlePreviewDto>(paginatorQuery, a => a.Topic, a => a.Writer, a => a.Writer.User);
+            return await _repository.GetPage<ArticlePreviewDto>(paginatorQuery, a => a.Topic, a => a.Writer, a => a.Writer.User, a => a.UserArticleMarks);
         }
 
         
         public async Task<PaginatorAnswer<ArticlePreviewDto>> GetUserArticlesPage(long userId, PaginatorQuery paginatorQuery)
         {
-            return await _repository.GetUserArticlesPage<ArticlePreviewDto>(userId, paginatorQuery, a => a.Topic, a => a.Writer, a => a.Writer.User);
+            return await _repository.GetUserArticlesPage<ArticlePreviewDto>(userId, paginatorQuery, a => a.Topic, a => a.Writer, a => a.Writer.User, a => a.UserArticleMarks);
         }
 
         public async Task UpdateArticle(ArticleUpdateDto updateDto)
@@ -59,16 +60,33 @@ namespace WebArticles.WebAPI.Data.Services
             return article.Id;
         }
 
-        public async Task<int> UpdateRating(long id, int rating)
+        public async Task<int> GetUserArticleMark(long userId, long articleId)
         {
-            var article = await _repository.GetById(id);
+            var article = await _repository.GetById(articleId, a => a.UserArticleMarks);
+            var userArticleMark = article.UserArticleMarks.FirstOrDefault(uam => uam.UserId == userId);
 
-            article.Rating = rating;
-            await _repository.Update(article);
+            if (userArticleMark != null)
+                return userArticleMark.Mark ? 1 : -1;
 
+            return 0;
+        }
+
+        public async Task<int> UpdateRating(long userId, long articleId, int mark)
+        {
+            var article = await _repository.GetById(articleId, c => c.UserArticleMarks);
+            var userCommentMark = article.UserArticleMarks.FirstOrDefault(uam => uam.UserId == userId);
+
+            if (userCommentMark == null)
+                article.UserArticleMarks.Add(new UserArticleMark { ArticleId = articleId, UserId = userId, Mark = (mark == 1) });
+            else if (mark == 0)
+                article.UserArticleMarks.Remove(userCommentMark);
+            else
+                userCommentMark.Mark = (mark == 1);
+
+            await _repository.SaveAllChanges();
             return article.Rating;
         }
-        
+
         public async Task DeleteArticle(long id)
         {
             await _repository.Delete(id);

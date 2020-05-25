@@ -19,8 +19,16 @@ mat-form-field:nth-child(1) {
 }
 
 mat-form-field:nth-child(3),
-mat-form-field:nth-child(4) {
+mat-form-field:nth-child(5) {
     width: 65%;
+}
+
+mat-form-field:nth-child(5) {
+    margin-top: 0;
+}
+
+.no-display {
+    display: none;
 }
 
 mat-form-field,

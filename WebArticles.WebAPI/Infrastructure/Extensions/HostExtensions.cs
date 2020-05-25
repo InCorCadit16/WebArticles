@@ -1,5 +1,6 @@
-﻿using DataModel.Data.Entities;
+﻿using WebArticles.DataModel.Entities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -22,6 +23,8 @@ namespace WebArticles.WebAPI.Infrastructure
                     var context = services.GetRequiredService<ArticleDbContext>();
                     var userManager = services.GetRequiredService<UserManager<User>>();
                     var roleManager = services.GetRequiredService<RoleManager<Role>>();
+                    context.Database.Migrate();
+
 
                     await Seed.SeedUsers(context, userManager);
                     await Seed.SeedRoles(context, roleManager, userManager);

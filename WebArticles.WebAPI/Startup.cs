@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using DataModel.Data.Entities;
+using WebArticles.DataModel.Entities;
 using WebArticles.WebAPI.Infrastructure;
 using WebArticles.WebAPI.Data.Services;
 using WebArticles.WebAPI.Data.Profiles;
@@ -62,20 +62,8 @@ namespace WebAPI
             .AddRoleManager<RoleManager<Role>>()
             .AddEntityFrameworkStores<ArticleDbContext>();
 
-            services.AddCors(options =>
-            {
-                options.AddPolicy("default", policy =>
-                {
-                    policy.WithOrigins("https://localhost:4200")
-                        .AllowAnyHeader()
-                        .AllowAnyMethod()
-                        .AllowCredentials();
-                });
-            });
-
             var authOptions = services.ConfigureAuthOptions(Configuration);
-            services.AddJwtAuthentication(authOptions);
-            services.AddGoogleAuthentication(Configuration);
+            services.AddJwtAuthentication(authOptions, Configuration);
             services.AddAuthorization();
 
             services.AddControllers().AddNewtonsoftJson(options =>
@@ -94,9 +82,8 @@ namespace WebAPI
             {
                 app.UseMiddleware<ExceptionHandlingMiddleware>();
             }
-            app.UseHttpsRedirection();
 
-            app.UseCors("default");
+            app.UseCors(option => option.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 
             app.UseRouting();
 

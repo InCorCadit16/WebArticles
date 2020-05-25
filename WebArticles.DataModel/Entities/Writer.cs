@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 
-namespace DataModel.Data.Entities
+namespace WebArticles.DataModel.Entities
 {
     public class Writer : Entity
     {
@@ -28,6 +28,6 @@ namespace DataModel.Data.Entities
 
         public User User { get; set; }
 
-        public virtual ICollection<Article> Articles { get; set; }
+        public ICollection<Article> Articles { get; set; }
     }
 }

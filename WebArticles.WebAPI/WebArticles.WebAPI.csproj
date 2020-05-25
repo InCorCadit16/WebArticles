@@ -35,10 +35,18 @@
     <Compile Remove="Migrations\20200512155912_newRestrictionChanges3.Designer.cs" />
     <Compile Remove="Migrations\20200512160133_newRestrictionChanges3.cs" />
     <Compile Remove="Migrations\20200512160133_newRestrictionChanges3.Designer.cs" />
+    <Compile Remove="Migrations\20200525125309_computedRating.cs" />
+    <Compile Remove="Migrations\20200525125309_computedRating.Designer.cs" />
+    <Compile Remove="Migrations\20200525125611_computedRating.cs" />
+    <Compile Remove="Migrations\20200525125611_computedRating.Designer.cs" />
+    <Compile Remove="Migrations\20200525150949_addDeleteBehaviourToComments.cs" />
+    <Compile Remove="Migrations\20200525150949_addDeleteBehaviourToComments.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
+    <PackageReference Include="Google.Apis" Version="1.45.0" />
+    <PackageReference Include="Google.Apis.Auth" Version="1.45.0" />
     <PackageReference Include="IdentityServer4" Version="3.1.2" />
     <PackageReference Include="IdentityServer4.AspNetIdentity" Version="3.1.2" />
     <PackageReference Include="IdentityServer4.EntityFramework" Version="3.1.2" />

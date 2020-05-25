@@ -1,4 +1,4 @@
-import { ArticlePreview } from "../../models/article-preview";
+import { ArticlePreview } from "../../models/article/article-preview";
 
 export class PaginatorAnswer<T> {
     total: number;

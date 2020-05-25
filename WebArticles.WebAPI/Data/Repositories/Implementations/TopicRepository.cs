@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using DataModel.Data.Entities;
+using WebArticles.DataModel.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using WebAPI;

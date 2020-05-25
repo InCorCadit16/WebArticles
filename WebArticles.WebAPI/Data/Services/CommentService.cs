@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using DataModel.Data.Entities;
+using WebArticles.DataModel.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,6 +14,7 @@ namespace WebArticles.WebAPI.Data.Services
     public class CommentService
     {
         private readonly CommentRepository _repository;
+        
         private readonly UserRepository _userRepository;
         private readonly IMapper _mapper;
 
@@ -26,12 +27,12 @@ namespace WebArticles.WebAPI.Data.Services
 
         public async Task<PaginatorAnswer<CommentDto>> GetArticleCommentsPage(long articleId, PaginatorQuery paginatorQuery)
         {
-            return await _repository.GetArticlesCommentsPage<CommentDto>(articleId, paginatorQuery, c => c.Reviewer, c => c.Reviewer.User);
+            return await _repository.GetArticlesCommentsPage<CommentDto>(articleId, paginatorQuery, c => c.Reviewer, c => c.Reviewer.User, c => c.UserCommentMarks);
         }
 
         public async Task<PaginatorAnswer<CommentDto>> GetUserCommentsPage(long userId, PaginatorQuery paginatorQuery)
         {
-            return await _repository.GetUserCommentsPage<CommentDto>(userId, paginatorQuery, c => c.Reviewer, c => c.Reviewer.User);
+            return await _repository.GetUserCommentsPage<CommentDto>(userId, paginatorQuery, c => c.Reviewer, c => c.Reviewer.User, c => c.UserCommentMarks);
         }
 
         public async Task UpdateComment(CommentUpdateDto commentUpdate)
@@ -39,6 +40,7 @@ namespace WebArticles.WebAPI.Data.Services
             var comment = await _repository.GetById(commentUpdate.Id);
 
             comment.Content = commentUpdate.NewContent;
+            comment.LastEditDate = commentUpdate.LastEditDate;
             await _repository.Update(comment);
         }
 
@@ -58,13 +60,30 @@ namespace WebArticles.WebAPI.Data.Services
             return comment.Id;
         }
 
-        public async Task<int> UpdateRating(long id, int rating)
+        public async Task<int> GetUserCommentMark(long userId, long commentId)
         {
-            var comment = await _repository.GetById(id);
+            var comment = await _repository.GetById(commentId, c => c.UserCommentMarks);
+            var userCommentMark = comment.UserCommentMarks.FirstOrDefault(uam => uam.UserId == userId);
 
-            comment.Rating = rating;
-            await _repository.Update(comment);
+            if (userCommentMark != null)
+                return userCommentMark.Mark ? 1 : -1;
 
+            return 0;
+        }
+
+        public async Task<int> UpdateRating(long userId, long commentId, int mark)
+        {
+            var comment = await _repository.GetById(commentId, c => c.UserCommentMarks);
+            var userCommentMark = comment.UserCommentMarks.FirstOrDefault(uam => uam.UserId == userId);
+
+            if (userCommentMark == null)
+                comment.UserCommentMarks.Add(new UserCommentMark { CommentId = commentId, UserId = userId, Mark = (mark == 1) });
+            else if (mark == 0)
+                comment.UserCommentMarks.Remove(userCommentMark);
+            else
+                userCommentMark.Mark = (mark == 1);
+
+            await _repository.SaveAllChanges();
             return comment.Rating;
         }
     }

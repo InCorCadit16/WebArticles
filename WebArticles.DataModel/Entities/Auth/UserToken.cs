@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace WebArticles.DataModel.Data.Entities.Auth
+namespace WebArticles.WebArticles.DataModel.Entities.Auth
 {
     public class UserToken : IdentityUserToken<long>
     {

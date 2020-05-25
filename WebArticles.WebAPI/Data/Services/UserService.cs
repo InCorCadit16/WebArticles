@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using DataModel.Data.Entities;
+using WebArticles.DataModel.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -55,16 +55,18 @@ namespace WebArticles.WebAPI.Data.Services
 
         public async Task CreateWriterAndReviewer(User user)
         {
-            var reviewer = new Reviewer() { UserId = user.Id, User = user };
-            var writer = new Writer() { UserId = user.Id, User = user };
+            var reviewer = new Reviewer() { User = user };
+            var writer = new Writer() { User = user };
 
             user.Reviewer = reviewer;
             user.Writer = writer;
 
+            await _repository.Update(user);
+
             await _reviewerRepository.Insert(reviewer);
             await _writerRepository.Insert(writer);
 
-            await _repository.Update(user);
+            
         }
 
         public async Task<User> GetUserArticlesId(long articleId)
@@ -92,6 +94,14 @@ namespace WebArticles.WebAPI.Data.Services
                     throw new FormInvalidException("", $"Email {userUpdateDto.Email} is already taken");
                 }
             }
+
+            if (user.ExternalProvider)
+            {
+                if (userUpdateDto.Email != user.Email || userUpdateDto.ProfilePickLink != user.ProfilePickLink)
+                {
+                    throw new FormInvalidException("Attempt to update const fields of externally signed user", "You can\'t update you email or profile picture since you are logged in externally and this values are taken from your externall account");
+                }
+            }
             
             user = _mapper.Map(userUpdateDto, user);
 
@@ -113,7 +123,7 @@ namespace WebArticles.WebAPI.Data.Services
 
         public async Task<PaginatorAnswer<UserRowDto>> GetPage(PaginatorQuery paginatorQuery)
         {
-            return await _repository.GetPage<UserRowDto>(paginatorQuery, u => u.Reviewer, u => u.Reviewer.Comments, u => u.Writer, u => u.Writer.Articles);
+            return await _repository.GetPage<UserRowDto>(paginatorQuery, u => u.Reviewer, u => u.Reviewer.Comments, u => u.UserArticleMarks, u => u.Writer, u => u.Writer.Articles, u => u.UserCommentMarks);
         }
     }
 }

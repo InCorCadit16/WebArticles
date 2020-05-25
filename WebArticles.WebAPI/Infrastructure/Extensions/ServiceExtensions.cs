@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.Authentication.OAuth.Claims;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -7,18 +9,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebArticles.WebAPI.Data.Services;
 
 namespace WebArticles.WebAPI.Infrastructure
 {
     public static class ServiceExtensions
     {
-        public static void AddJwtAuthentication(this IServiceCollection services, AuthOptions authOptions)
+        public static void AddJwtAuthentication(this IServiceCollection services, AuthOptions authOptions, IConfiguration configuration)
         {
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
+            services.AddAuthentication()
             .AddJwtBearer(options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters
@@ -35,24 +34,15 @@ namespace WebArticles.WebAPI.Infrastructure
                     IssuerSigningKey = authOptions.GetSymmetricSecurityKey()
                 };
             });
-        }  
 
-        public static void AddGoogleAuthentication(this IServiceCollection services, IConfiguration configuration)
-        {
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = GoogleDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
-            })
-            .AddGoogle(options =>
+            services.AddAuthentication().AddGoogle(options =>
             {
                 var googleAuthSection = configuration.GetSection("Authentication:Google");
 
                 options.ClientId = googleAuthSection["ClientId"];
                 options.ClientSecret = googleAuthSection["ClientSecret"];
             });
-
-        }
+        }  
 
         public static AuthOptions ConfigureAuthOptions(this IServiceCollection services, IConfiguration configuration)
         {

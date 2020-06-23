@@ -10,7 +10,7 @@
             <mat-error *ngIf="title.hasError('required')">Title is required</mat-error>
         </mat-form-field>
 
-        <mat-form-field>
+        <mat-form-field appearance="outline">
             <mat-label>Overiew</mat-label>
             <textarea matInput type="text" [formControl]="overview" rows="8"></textarea>
             <mat-hint>Required</mat-hint>
@@ -31,6 +31,7 @@
                 toolbar: 'fontsizeselect| formatselect | bold italic underline | backcolor forecolor | image link| outdent indent',
                 menubar: false,
                 min_height: 500,
+                max_height: 800,
                 width: '100%',
                 statusbar: false,
                 content_style: '.mce-content-body { margin: 0!important; }'

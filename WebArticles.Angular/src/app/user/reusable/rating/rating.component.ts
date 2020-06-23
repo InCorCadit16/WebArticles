@@ -3,6 +3,7 @@ import { ArticleService } from 'src/app/services/article-service';
 import { CommentService } from 'src/app/services/comment-service';
 import { Article } from 'src/app/data-model/models/article/article';
 import { LoginService } from 'src/app/services/login-service';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-rating',
@@ -18,10 +19,10 @@ export class RatingComponent implements OnInit {
 
   state = 0;
 
-
   constructor(private articleService: ArticleService,
               private commentService: CommentService,
-              private loginService: LoginService) { }
+              private loginService: LoginService,
+              private router: Router) { }
 
   ngOnInit() {
     if (this.changable) {
@@ -33,6 +34,9 @@ export class RatingComponent implements OnInit {
   }
 
   onUpClicked() {
+    if (!this.loginService.isLoggedIn())
+      this.router.navigate(['login'])
+
     if (this.state == 1)
       this.changeRating(0);
     else
@@ -40,6 +44,9 @@ export class RatingComponent implements OnInit {
   }
 
   onDownClicked() {
+    if (!this.loginService.isLoggedIn())
+      this.router.navigate(['login'])
+
     if (this.state == -1)
       this.changeRating(0);
     else

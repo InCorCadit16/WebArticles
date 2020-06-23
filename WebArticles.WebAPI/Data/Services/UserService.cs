@@ -89,7 +89,7 @@ namespace WebArticles.WebAPI.Data.Services
 
             if (userUpdateDto.Email != user.Email)
             {
-                if (_repository.GetUserByEmail(userUpdateDto.Email) != null)
+                if ((await _repository.GetUserByEmail(userUpdateDto.Email)) != null)
                 {
                     throw new FormInvalidException("", $"Email {userUpdateDto.Email} is already taken");
                 }

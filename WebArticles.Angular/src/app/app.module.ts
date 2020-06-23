@@ -37,6 +37,9 @@ import { SharedModule } from './shared/shared.module';
 import { AuthInterceptorProvider } from './providers/auth-interceptor';
 import { OAuthModule, OAuthService } from 'angular-oauth2-oidc';
 import { EditorModule } from "@tinymce/tinymce-angular";
+import { DompurifyPipe } from "./pipes/dompurify.pipe"
+
+
 
 
 @NgModule({
@@ -63,7 +66,8 @@ import { EditorModule } from "@tinymce/tinymce-angular";
     EditableTagsListComponent,
     CommentListComponent,
     CommentComponent,
-    AddCommentComponent
+    AddCommentComponent,
+    DompurifyPipe
   ],
   imports: [
     SharedModule,

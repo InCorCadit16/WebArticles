@@ -40,6 +40,11 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 }
 
 
+.mat-tab-labels,
+.mat-tab-label {
+  width: 100%!important;
+}
+
 /* styles for text editor  */
 .tox .tox-edit-area__iframe,
 .tox .tox-toolbar-overlord,

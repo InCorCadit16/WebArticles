@@ -7,7 +7,6 @@ using WebArticles.WebAPI.Infrastructure.Models;
 using WebArticles.WebAPI.Data.Services;
 using System.Linq;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
 
 namespace WebArticles.WebAPI.Controllers
 {

@@ -17,7 +17,11 @@ namespace WebArticles.WebAPI.Infrastructure
     {
         public static void AddJwtAuthentication(this IServiceCollection services, AuthOptions authOptions, IConfiguration configuration)
         {
-            services.AddAuthentication()
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
             .AddJwtBearer(options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters

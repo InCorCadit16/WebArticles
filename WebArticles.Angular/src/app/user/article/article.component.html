@@ -13,7 +13,7 @@
         [sourceType]="'article'"
         [sourceId]="article.id"></app-rating>
 
-        <div class="content" [innerHTML]="article.content"></div>
+        <div class="content" [innerHTML]="article.content| dompurify"></div>
         <p></p>
         <app-tags-list [tags]="article.tags"></app-tags-list>
 
